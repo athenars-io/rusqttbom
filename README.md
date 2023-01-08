@@ -10,4 +10,6 @@ The main idea with this program is to collect the BOM weather data via the API, 
 
 Initially, limited configuration options will be available - consisting of a configuration file where users can input details like the desired weather data and MQTT broker details. Configuration and other user friendly options will be developed after the core functionality has been completed.
 
+Issues can be viewed [here](https://github.com/athenars-io/rusqttbom/issues), and the development plan can be found at the [Project](https://github.com/orgs/athenars-io/projects/1/views/2).
+
 Once the initial build is complete, the repo will need to be forked and cloned, configuration file edited, then a cargo build / run will need to suffice. Be sure to star this repo to watch the progress if this interests you!
