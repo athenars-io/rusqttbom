@@ -1,7 +1,5 @@
 # RusQTTbom 
 
-testing develop branch.
-
 RusQTTbom collects weather data from the Bureau of Meterology (BOM) then publishes said data locally via MQTT messages. BOM weather data is only for Australian locations. This weather data is obtained via an undocumented API, which was discovered thanks to [this Github repo](https://github.com/bremor/bureau_of_meteorology). BOM weather data is generally accepted as being the most accurate weather data in Australia.
 
 The BOM weather data API is used in [this BOM weather site](https://weather.bom.gov.au/). Go to this website then enter your suburb / location in the search bar then click on the correct result. Take a note of the seven digit key in the URL in the address bar of your browser. This will be used to grab data for your location. Further instructions regarding configuration will be provided as development progresses.
