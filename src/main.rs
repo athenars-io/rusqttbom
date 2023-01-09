@@ -17,9 +17,10 @@ struct Weather {
     max_temp: MaxTemp,
     humidity: u32,
     rain_since_9am: f32,
-    // gust: String, // how to manage null values?
-    // max_gust: String // how to manage null values?
     wind: Wind,
+    gust: Option<String>, // These Options are dealt with when saving variables 
+    #[serde(skip_serializing_if = "Option::is_none")] // Do I need this?
+    max_gust: Option<String>, 
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -46,7 +47,7 @@ async fn get_weather() -> Result<APIData, Box<dyn Error>> {
         .header(CONTENT_TYPE, "application/json")
         .send()
         .await?
-        .json::<APIData>()
+        .json::<APIData>() // later will move this into a match function
         .await?;
 
     // the following variables can later be published via
@@ -80,6 +81,20 @@ async fn get_weather() -> Result<APIData, Box<dyn Error>> {
 
     let wind_direction = &response.data.wind.direction;
     println!("The wind is coming from the {:?} direction", wind_direction);
+
+    let gusts = &response.data.gust;
+    // Later, when sending MQTT messages, we can just send when the pattern matches 
+    match &gusts {
+        Some(gusts) => println!("The wind is gusting at {:?}km an hour", gusts),
+        None => println!("None value for gusts"), // this can later be a log message
+    }
+
+    let max_gust = &response.data.max_gust;
+     // Later, when sending MQTT messages, we can just send when the pattern matches    
+     match &max_gust {
+        Some(max_gust) => println!("The wind is gusting at up to {:?}km an hour", &max_gust),
+        None => println!("None value for max gusts"), // this can later be a log message
+    }
 
     // The below works well and correct
     // We can build on the below later for error checking etc.
