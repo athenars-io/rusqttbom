@@ -197,7 +197,7 @@ async fn get_weather() -> Result<APIData, Box<dyn Error>> {
     Ok(response)
 }
 
-async fn send_mqtt() -> Result<(), Box<dyn Error>> {
+async fn send_mqtt() {
     let mut mqttoptions = MqttOptions::new("mqtt-play", "192.168.1.44", 1883);
     mqttoptions.set_keep_alive(Duration::from_secs(5));
     let (client, mut eventloop) = AsyncClient::new(mqttoptions, 10);
@@ -218,7 +218,7 @@ async fn send_mqtt() -> Result<(), Box<dyn Error>> {
             }
             Err(e) => {
                 println!("Error = {:?}", e);
-                return Ok(());
+                //return Ok(());
             }
         }
     }
