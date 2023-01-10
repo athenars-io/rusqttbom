@@ -1,0 +1,10 @@
+# This is the configuration file for the RusQTTbom program
+
+[location]
+# Got to https://weather.bom.gov.au/location/r3gx2f8-sydney and type in your location.
+# When you get a result you are after, note the name below.
+# Also copy the hash after the /location/ slug below.
+# The hash is normally 7 digits. If this doesn't work, remove the last digit.
+# Both location values need to be surrounded in double quotation marks.
+name = "Sydney"         # like "Sydney"
+hash = "r3gx2f"         # like "r3gx2f8"

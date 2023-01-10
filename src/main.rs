@@ -1,7 +1,19 @@
 use reqwest::{self, header::CONTENT_TYPE};
-use std::{error::Error};
+use std::{error::Error, fs};
 use serde::{Deserialize, Serialize};
+use toml;
 //use serde_json;
+
+#[derive(Deserialize, Debug)]
+struct Config {
+    location: Location
+}
+
+#[derive(Deserialize, Debug)]
+struct Location {
+    name: String,
+    hash: String,
+}
 
 #[derive(Serialize, Deserialize, Debug)]
 struct APIData {
@@ -43,21 +55,39 @@ struct MinTemp {
 }
 
 async fn get_weather() -> Result<APIData, Box<dyn Error>> {
+    // Start by grabbing data from the config.toml file
+    let config: Config = {
+        let config_text = fs::read_to_string("config.toml")
+            .expect("Could not read the file");
+        toml::from_str(&config_text)
+            .expect("Could not parse toml")
+    };
+    let loc_name = config.location.name;
+    let loc_hash = config.location.hash;
+    // println!("location name is {}", &loc_name);
+    // println!("location hash is {}", &loc_hash);
+
+    // The following builds the API URL using location data from config.toml
+    let url = format!(
+        "https://api.weather.bom.gov.au/v1/locations/{loc_hash}/observations"
+    );
+
+    // GET the BOM API data
     let client = reqwest::Client::new();
     let response = client
-        .get("https://api.weather.bom.gov.au/v1/locations/r3gx2f/observations")
+        .get(url)
         .header(CONTENT_TYPE, "application/json")
         .send()
         .await?
         .json::<APIData>() // later will move this into a match function
         .await?;
 
-    // the following variables can later be published via
+    // The following variables can later be published via
     // MQTT messages along their own MQTT topics.
     // At that point, we will no longer need the println! lines
     // as those lines are temporary only.
-
     let current_temp = &response.data.temp;
+    println!("The current temperature at {} is {:?} degrees", &loc_name, &current_temp);
     match &current_temp {
         Some(current_temp) => println!("The current temperature is {:?} degrees", &current_temp),
         None => println!("None value for current temp"),
