@@ -2,17 +2,29 @@ use reqwest::{self, header::CONTENT_TYPE};
 use std::{error::Error, fs};
 use serde::{Deserialize, Serialize};
 use toml;
+use rumqttc::v5::mqttbytes::{LastWill, QoS};
+use rumqttc::v5::{MqttOptions, AsyncClient};
+use std::time::Duration;
+use std::thread;
+use tokio::{task, time};
 //use serde_json;
 
 #[derive(Deserialize, Debug)]
 struct Config {
-    location: Location
+    location: Location,
+    broker: Broker,
 }
 
 #[derive(Deserialize, Debug)]
 struct Location {
     name: String,
     hash: String,
+}
+
+#[derive(Deserialize, Debug)]
+struct Broker {
+    ip: String,
+    port: u16,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -81,16 +93,38 @@ async fn get_weather() -> Result<APIData, Box<dyn Error>> {
         .await?
         .json::<APIData>() // later will move this into a match function
         .await?;
+    
+    // Setup MQTT client to be ready to send messages
+    let ip = config.broker.ip;
+    // println!("ip is {}", ip);
+    let port = config.broker.port;
+    // println!("port is {}", port);
+    //let mut mqttoptions = MqttOptions::new("RusQTTbom", "192.168.1.44", 1883);
+    //mqttoptions.set_keep_alive(Duration::from_secs(5));
+    //let (client, mut connection) = Client::new(mqttoptions, 10);
+    //thread::spawn(move || publish(clientz, "test"));
+    //client.subscribe("rusqttbom/log", QoS::AtMostOnce).unwrap();
+    //publish(&client);
+    //thread::spawn(move || publish(client));
+    //    thread::sleep(Duration::from_millis(100));
+    
+    //clientz.publish("rusqttbom/log", QoS::AtMostOnce, false, "test")
+    //        .expect("could not send message");
+    //clientz.publish("rusqttbom/log", QoS::AtMostOnce, false, "test").unwrap();
 
     // The following variables can later be published via
     // MQTT messages along their own MQTT topics.
     // At that point, we will no longer need the println! lines
     // as those lines are temporary only.
+    
     let current_temp = &response.data.temp;
     match &current_temp {
         Some(current_temp) => println!("The current temperature at {} is {:?} degrees", loc_name, &current_temp),
         None => println!("None value for current temp"),
     }
+    
+
+
 
     let temp_feels = &response.data.temp_feels_like;
     match &temp_feels {
@@ -160,13 +194,68 @@ async fn get_weather() -> Result<APIData, Box<dyn Error>> {
     //    Ok(parsed) => println!("Success! {:?}", parsed),
     //    Err(_) => println!("didn't parse"),
     //};
-
     Ok(response)
+}
+
+async fn send_mqtt() -> Result<(), Box<dyn Error>> {
+    let mut mqttoptions = MqttOptions::new("mqtt-play", "192.168.1.44", 1883);
+    mqttoptions.set_keep_alive(Duration::from_secs(5));
+    let (client, mut eventloop) = AsyncClient::new(mqttoptions, 10);
+    let topicz = "mqtt/more";
+    let payloadz = 22.7;
+    let new = payloadz.to_string();
+    // This below publish now works, though need to convert float to string
+    client
+        .publish(topicz, QoS::AtMostOnce, false, new)
+        .await
+        .unwrap();
+
+    loop {
+        let event = eventloop.poll().await;
+        match &event {
+            Ok(v) => {
+                println!("Event = {:?}", v);
+            }
+            Err(e) => {
+                println!("Error = {:?}", e);
+                return Ok(());
+            }
+        }
+    }
 }
 
 #[tokio::main]
 async fn main() {
     let detail = get_weather().await;
-
     println!("weather = {:#?}", detail);
+
+    send_mqtt().await;
 }
+    //let mut mqttoptions = MqttOptions::new("mqtt-play", "192.168.1.44", 1883);
+    //mqttoptions.set_keep_alive(Duration::from_secs(5));
+    //let (client, mut eventloop) = AsyncClient::new(mqttoptions, 10);
+    //let topicz = "mqtt/more";
+    //let payloadz = "testing above";
+    //client
+    //    .publish(topicz, QoS::ExactlyOnce, false, payloadz)
+    //    .await
+    //    .unwrap();
+    //task::spawn(async move {
+    //    requests(client).await;
+    //    time::sleep(Duration::from_secs(2)).await;
+    //});
+
+
+//async fn requests(client: AsyncClient) {
+    //client
+    //    .subscribe("mqtt-play/testing", QoS::AtMostOnce)
+    //    .await
+    //    .unwrap();
+
+//    client
+  //      .publish("mqtt-play/testing", QoS::ExactlyOnce, false, "testing new")
+    //    .await
+    //    .unwrap();
+
+//    time::sleep(Duration::from_secs(1)).await;
+//}
