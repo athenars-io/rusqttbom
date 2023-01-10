@@ -87,12 +87,11 @@ async fn get_weather() -> Result<APIData, Box<dyn Error>> {
     // At that point, we will no longer need the println! lines
     // as those lines are temporary only.
     let current_temp = &response.data.temp;
-
+    println!("The current temperature at {} is {:?} degrees", &loc_name, &current_temp);
     match &current_temp {
         Some(current_temp) => println!("The current temperature is {:?} degrees", &current_temp),
         None => println!("None value for current temp"),
     }
-    println!("The current temperature at {} is {:?} degrees", &loc_name, &current_temp);
 
     let temp_feels = &response.data.temp_feels_like;
     match &temp_feels {
