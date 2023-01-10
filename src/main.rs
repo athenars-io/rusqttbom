@@ -23,33 +23,35 @@ struct APIData {
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Weather {
-    temp: f32,
-    temp_feels_like: f32,
+    // Note all of the Options are dealt with in the get_weather function
+    // by identifying null / None values then processing accordingly
+    temp: Option<f32>,
+    temp_feels_like: Option<f32>,
     min_temp: MinTemp,
     max_temp: MaxTemp,
-    humidity: u32,
-    rain_since_9am: f32,
+    humidity: Option<f32>,
+    rain_since_9am: Option<f32>,
     wind: Wind,
-    gust: Option<String>, // These Options are dealt with when saving variables 
+    gust: Option<f32>, 
     #[serde(skip_serializing_if = "Option::is_none")] // Do I need this?
-    max_gust: Option<String>, 
+    max_gust: Option<f32>, 
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Wind {
-    speed_knot: f32,
-    speed_kilometre: f32,
-    direction: String,
+    speed_knot: Option<f32>,
+    speed_kilometre: Option<f32>,
+    direction: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 struct MaxTemp {
-    value: f32,
+    value: Option<f32>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 struct MinTemp {
-    value: f32,
+    value: Option<f32>,
 }
 
 async fn get_weather() -> Result<APIData, Box<dyn Error>> {
@@ -86,35 +88,63 @@ async fn get_weather() -> Result<APIData, Box<dyn Error>> {
     // as those lines are temporary only.
     let current_temp = &response.data.temp;
     println!("The current temperature at {} is {:?} degrees", &loc_name, &current_temp);
+    match &current_temp {
+        Some(current_temp) => println!("The current temperature is {:?} degrees", &current_temp),
+        None => println!("None value for current temp"),
+    }
 
     let temp_feels = &response.data.temp_feels_like;
-    println!("The current temperature feels like {:?} degrees", temp_feels);
+    match &temp_feels {
+        Some(temp_feels) => println!("The current temperature feels like {:?} degrees", &temp_feels),
+        None => println!("None value for temp feels"),
+    }
 
     let min_temp = &response.data.min_temp.value;
-    println!("The minimum temperature today has been {:?} degrees", min_temp);
+    match &min_temp {
+        Some(min_temp) => println!("The minimum temperature today has been {:?} degrees", &min_temp),
+        None => println!("None value for min temp"),
+    }
 
     let max_temp = &response.data.max_temp.value;
-    println!("The maximum temperature today has been {:?} degrees", max_temp);
+    match &max_temp {
+        Some(max_temp) => println!("The maximum temperature today has been {:?} degrees", &max_temp),
+        None => println!("None value for max temp"),
+    }
 
     let humidity = &response.data.humidity;
-    println!("The current humidty is {:?} percent", humidity);
+    match &humidity {
+        Some(humidity) => println!("The current humidity is {:?} percent", &humidity),
+        None => println!("None value for humidity"),
+    }
 
     let rain_today = &response.data.rain_since_9am;
-    println!("Today, there has been {:?}mm of rain", rain_today);
+    match &rain_today {
+        Some(rain_today) => println!("Today, there has been {:?}mm of rain", &rain_today),
+        None => println!("None value for rain today"),
+    }
 
     let wind_kms = &response.data.wind.speed_kilometre;
-    println!("The wind speed is {:?}km/h", wind_kms);
+    match &wind_kms {
+        Some(wind_kms) => println!("The wind speed is {:?}km/h", &wind_kms),
+        None => println!("None value for wind kms"),
+    }
 
     let wind_kts = &response.data.wind.speed_knot;
-    println!("the wind speed is {:?}knots", wind_kts);
+    match &wind_kts {
+        Some(wind_kts) => println!("the wind speed is {:?}knots", &wind_kts),
+        None => println!("None value for wind kts"),
+    }
 
     let wind_direction = &response.data.wind.direction;
-    println!("The wind is coming from the {:?} direction", wind_direction);
+    match &wind_direction {
+        Some(wind_direction) => println!("The wind is coming from the {:?} direction", &wind_direction),
+        None => println!("None value for wind direction"),
+    }
 
     let gusts = &response.data.gust;
     // Later, when sending MQTT messages, we can just send when the pattern matches 
     match &gusts {
-        Some(gusts) => println!("The wind is gusting at {:?}km an hour", gusts),
+        Some(gusts) => println!("The wind is gusting at {:?}km an hour", &gusts),
         None => println!("None value for gusts"), // this can later be a log message
     }
 
