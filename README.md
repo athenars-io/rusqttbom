@@ -19,6 +19,8 @@ The MQTT client library used is [rumqttc](https://github.com/bytebeamio/rumqtt).
 - outside/weather/wind-kms
 - outside/weather/wind-kts
 - outside/weather/wind-dir
+- outside/weather/gusts
+- outside/weather/max-gust
 
 The RusQTTbom MQTT client name is 'rusqttbom'.
 

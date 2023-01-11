@@ -97,40 +97,19 @@ async fn get_weather() -> Result<(), Box<dyn Error>>  {
     
     // Setup MQTT client to be ready to send messages
     let ip = config.broker.ip;
-    // println!("ip is {}", ip);
-    // let port = config.broker.port; // for some reason the MqttOptions won't take this as a variable even though it needs a u16
-    // println!("port is {}", port);
-    //let mut mqttoptions = MqttOptions::new("RusQTTbom", "192.168.1.44", 1883);
-    //mqttoptions.set_keep_alive(Duration::from_secs(5));
-    //let (client, mut connection) = Client::new(mqttoptions, 10);
-    //thread::spawn(move || publish(clientz, "test"));
-    //client.subscribe("rusqttbom/log", QoS::AtMostOnce).unwrap();
-    //publish(&client);
-    //thread::spawn(move || publish(client));
-    //    thread::sleep(Duration::from_millis(100));
-    
-    //clientz.publish("rusqttbom/log", QoS::AtMostOnce, false, "test")
-    //        .expect("could not send message");
-    //clientz.publish("rusqttbom/log", QoS::AtMostOnce, false, "test").unwrap();
-
-    // The following variables can later be published via
-    // MQTT messages along their own MQTT topics.
-    // At that point, we will no longer need the println! lines
-    // as those lines are temporary only.
-
     let mut mqttoptions = MqttOptions::new("rusqttbom", ip, 1883);
     mqttoptions.set_keep_alive(Duration::from_secs(5));
     let (client, mut eventloop) = AsyncClient::new(mqttoptions, 10);
 
+    // Publish the data as MQTT messages
+    // All messages are published with QoS 0
     let temp_c_topic = "outside/weather/current-temp";
     let current_temp = &response.data.temp;
-    //let current_tempz = current_temp.to_string();
     match &current_temp {
         Some(current_temp) => client
                                         .publish(temp_c_topic, QoS::AtMostOnce, false, current_temp.to_string())
                                         .await
                                         .unwrap(),
-                                        // println!("The current temperature at {} is {:?} degrees", loc_name, &current_temp),
         None => println!("None value for current temp"),
     }
 
@@ -216,7 +195,6 @@ async fn get_weather() -> Result<(), Box<dyn Error>>  {
 
     let gusts_topic = "outside/weather/gusts";
     let gusts = &response.data.gust;
-    // Later, when sending MQTT messages, we can just send when the pattern matches 
     match &gusts {
         Some(gusts) => client
                                  .publish(gusts_topic, QoS::AtMostOnce, false, gusts.to_string())
@@ -238,7 +216,8 @@ async fn get_weather() -> Result<(), Box<dyn Error>>  {
 
    // This endless eventloop is required to publish the messages
    // The count needs to give enough times to receive the ConnAck and complete this program and wait for any failed messages to process
-   let mut n = 15;    loop {
+   let mut n = 15;    
+   loop {
        let event = eventloop.poll().await;
        n -= 1; // this countdown allows us to break out of the endless loop closing the program
        match &event {
@@ -265,69 +244,9 @@ async fn get_weather() -> Result<(), Box<dyn Error>>  {
     // Ok(response)
 }
 
-// async fn send_mqtt() -> Result<(), Box<dyn Error>> {
-//    let mut mqttoptions = MqttOptions::new("mqtt-play", "192.168.1.44", 1883);
-//    mqttoptions.set_keep_alive(Duration::from_secs(5));
-//    let (client, mut eventloop) = AsyncClient::new(mqttoptions, 10);
-
-    // This below publish now works, though need to convert float to string
-    //client
-    //    .publish(topicz, QoS::AtMostOnce, false, payloadz)
-    //    .await
-    //    .unwrap();
-
-    // This endless eventloop is required to publish the messages
-//    let mut n = 10; // this count seems to give enough time to complete this program and wait for any failed messages to process
-//    loop {
-//        let event = eventloop.poll().await;
-//        n -= 1; // this countdown allows us to break out of the endless loop closing the program
-//        match &event {
-//            Ok(v) => {
-//                if n < 1 {
-//                    println!("breaking out");
-//                    return Ok(());
-//                }
-//                println!("Event = {:?}", v);
-//            }
-//            Err(e) => {
-//                println!("Error = {:?}", e);
-//                return Ok(());
-//            }
-//        }
-//    }
-//}
-
 #[tokio::main]
 async fn main() {
-    get_weather().await;
-    // println!("weather = {:#?}", detail);
-    // send_mqtt().await;
+    get_weather()
+        .await
+        .expect("The get weather function didn't seem to work");
 }
-    //let mut mqttoptions = MqttOptions::new("mqtt-play", "192.168.1.44", 1883);
-    //mqttoptions.set_keep_alive(Duration::from_secs(5));
-    //let (client, mut eventloop) = AsyncClient::new(mqttoptions, 10);
-    //let topicz = "mqtt/more";
-    //let payloadz = "testing above";
-    //client
-    //    .publish(topicz, QoS::ExactlyOnce, false, payloadz)
-    //    .await
-    //    .unwrap();
-    //task::spawn(async move {
-    //    requests(client).await;
-    //    time::sleep(Duration::from_secs(2)).await;
-    //});
-
-
-//async fn requests(client: AsyncClient) {
-    //client
-    //    .subscribe("mqtt-play/testing", QoS::AtMostOnce)
-    //    .await
-    //    .unwrap();
-
-//    client
-  //      .publish("mqtt-play/testing", QoS::ExactlyOnce, false, "testing new")
-    //    .await
-    //    .unwrap();
-
-//    time::sleep(Duration::from_secs(1)).await;
-//}
