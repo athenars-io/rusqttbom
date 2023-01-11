@@ -118,7 +118,7 @@ async fn get_weather() -> Result<(), Box<dyn Error>>  {
     // At that point, we will no longer need the println! lines
     // as those lines are temporary only.
 
-    let mut mqttoptions = MqttOptions::new("mqtt-play", ip, 1883);
+    let mut mqttoptions = MqttOptions::new("rusqttbom", ip, 1883);
     mqttoptions.set_keep_alive(Duration::from_secs(5));
     let (client, mut eventloop) = AsyncClient::new(mqttoptions, 10);
 
@@ -154,7 +154,7 @@ async fn get_weather() -> Result<(), Box<dyn Error>>  {
         None => println!("None value for min temp"),
     }
 
-    let max_temp_topic = "outside/weather/min-temp";
+    let max_temp_topic = "outside/weather/max-temp";
     let max_temp = &response.data.max_temp.value;
     match &max_temp {
         Some(max_temp) => client
