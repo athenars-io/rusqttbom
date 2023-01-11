@@ -5,10 +5,9 @@ use toml;
 use rumqttc::v5::mqttbytes::QoS; // LastWill
 use rumqttc::v5::{MqttOptions, AsyncClient};
 use std::time::Duration;
-use std::env::var;
 // use std::thread;
 // use tokio::{task, time};
-// use serde_json;
+//use serde_json;
 
 #[derive(Deserialize, Debug)]
 struct Config {
@@ -67,35 +66,43 @@ struct MinTemp {
     value: Option<f32>,
 }
 
-fn get_config_path() -> String {
-    // Your config.toml should be in $HOME/.config/rusqttbom/config.toml
-    // First, we need to identify the home drive
-    // Then we can add on the remainder of the file path
-    let home_dir = var("HOME");
-    // We need to clean the start and end of this string
-    println!("short path {:?}", home_dir);
-    // We need to convert the type to String
-    let hd_string = format!(
-        "{:?}",home_dir 
-    );
-    let start = 5; // This is to remove formatting from start of file path
-    let length = hd_string.len(); 
-    let end = length-2; // This is to remove same from end
-    let clean_dir = &hd_string[start..end];
-    // Now that we have a clean string we can amend the rest
-    let config_path = format!(
-        "/{}/.config/rusqttbom/config.toml", clean_dir 
-    );
-    config_path
-}
+
+use std::env::var;
+
+//fn ff() {
+//    let config_home = var("XDG_CONFIG_HOME")
+//        .or_else(|_| var("HOME").map(|home|format!("{}/.config", home)));
+//    //println!("{:?}", config_home);
+//}
+
 
 // Result<APIData, Box<dyn Error>> // saving this result type in case I need it again, likely wont need
 async fn get_weather() -> Result<(), Box<dyn Error>>  {
-    // Now we can start to read the config file
-    // Optionally, you may want to replace `get_config_path()` with simply "config.toml" for development
-    // However setting it this way allows for the binary to run, including by CRON
+    // Start by grabbing data from the config.toml fileA
+    let tt = var("HOME");
+    //let tt = var("XDG_CONFIG_HOME");
+    //let configz = var("XDG_CONFIG_HOME")
+    //.or_else(
+    //    |_| var("HOME")
+    //    .map(|home|format!("{:?}/.config", home
+    //)));
+    println!("short path {:?}", &tt);
+    let ttt = &tt;
+    let ttt: String = format!(
+        "{ttt}"
+    );
+    let length = tt.len();
+    let length = length - 2;
+    //let uu = "heeeeel";
+    let config_path = format!(
+        "{:?}/rusqttbom/config.toml", tt 
+    );
+     println!("longer path: {}", &config_path);
+     println!("cleaned path: {}", &config_path[4..length]);
+
+    //let gg: String = config_home;
     let config: Config = {
-        let config_text = fs::read_to_string(get_config_path())
+        let config_text = fs::read_to_string("config.toml")
             .expect("Could not read the file");
         toml::from_str(&config_text)
             .expect("Could not parse toml")
