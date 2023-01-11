@@ -1,15 +1,38 @@
 # RusQTTbom 
 
-RusQTTbom collects weather data from the Bureau of Meterology (BOM) then publishes said data locally via MQTT messages. BOM weather data is only for Australian locations. This weather data is obtained via an undocumented API, which was discovered thanks to [this Github repo](https://github.com/bremor/bureau_of_meteorology). BOM weather data is generally accepted as being the most accurate weather data in Australia.
+RusQTTbom collects weather data from the Bureau of Meterology (BOM) then publishes said data locally via MQTT messages. BOM weather data is only for Australian locations. This weather data is obtained via an undocumented API, which was seemingly discovered, or at least popularised, thanks to [this Github repo](https://github.com/chris-horner/SocketWeather) - and [this one](https://github.com/bremor/bureau_of_meteorology). Because this is an undocumented API, it could be turned off at any time. BOM weather data is generally accepted as being the most accurate weather data in Australia.
 
-The BOM weather data API is used in [this BOM weather site](https://weather.bom.gov.au/). Go to this website then enter your suburb / location in the search bar then click on the correct result. Take a note of the seven digit key in the URL in the address bar of your browser. This will be used to grab data for your location. Further instructions regarding configuration will be provided as development progresses.
+The BOM weather data API is used in [this BOM weather site](https://weather.bom.gov.au/). Go to this website then enter your suburb / location in the search bar then click on the correct result. Take a note of the seven digit *geohash* in the URL in the address bar of your browser. This will be used to get data for your location and you need to add this to your config.toml file.
 
-The main idea with this program is to collect the BOM weather data via the API, parse the data, then publish the wanted data in a local network via MQTT messages. This way, we can have many programs do things with the MQTT data in a de-coupled manner. For example, we can setup alerts and notifications. We can use various home automations. We can also write the data to a database. By using an MQTT message bus, we can loosely couple all of these services, which provides desired reliability.
+The main idea with this program is to collect the BOM weather data via the API, parse the data, check for null or erroneous entries, then publish the wanted data in a local network via MQTT messages. This way, we can have many programs do things with the MQTT data in a de-coupled manner. For example, we can setup alerts and notifications. We can use various home automations. We can also write the data to a database. By using an MQTT message bus, we can loosely couple all of these services, which provides desired reliability in our system. In essense, RusQTTbom becomes a local weather sensor providing BOM weather data.
 
-==Note: This repo should be considered as being in the *pre-alpha* stage so is still in active initial development==
+==Note: This repo should be considered as being in the early *alpha* stage so is still in active initial development however it functionally works fine as is for testing or personal use==
 
-Initially, limited configuration options will be available - consisting of a configuration file where users can input details like the desired weather data and MQTT broker details. Configuration and other user friendly options will be developed after the core functionality has been completed.
+The MQTT client library used is [rumqttc](https://github.com/bytebeamio/rumqtt). Weather data that is published by RusQTTbom via MQTT consists of the following values, by the used MQTT topics:
+
+- outside/weather/current-temp
+- outside/weather/temp-feels
+- outside/weather/min-temp
+- outside/weather/max-temp
+- outside/weather/humidity
+- outside/weather/rain-today
+- outside/weather/wind-kms
+- outside/weather/wind-kts
+- outside/weather/wind-dir
+
+The RusQTTbom MQTT client name is 'rusqttbom'.
+
+Configuration options are limited in this initial release. Options consist of the following:
+
+- location name
+- location geohash
+- MQTT broker IP address
+- MQTT broker port
+
+More configuration options will be avaible in later releases.
 
 Issues can be viewed [here](https://github.com/athenars-io/rusqttbom/issues), and the development plan can be found at the [Project](https://github.com/orgs/athenars-io/projects/1/views/2).
 
-Once the initial build is complete, the repo will need to be forked and cloned, configuration file edited, then a cargo build / run will need to suffice. Be sure to star this repo to watch the progress if this interests you!
+To use this program in its current state, the repo can be forked and cloned, configuration file edited, then use `cargo run --release`. For best use of this program, be sure to set a CRON job to run the binary every 10mins. **Important!**: Do not hit this API more than once every ten minutes. Not abusing this API should help keep it from being shut down or modified.
+
+Be sure to star this repo to watch the progress if this interests you!
