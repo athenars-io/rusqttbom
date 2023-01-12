@@ -44,16 +44,27 @@ struct Weather {
     humidity: Option<f32>,
     rain_since_9am: Option<f32>,
     wind: Wind,
-    gust: Option<f32>, 
-    #[serde(skip_serializing_if = "Option::is_none")] // Do I need this?
-    max_gust: Option<f32>, 
+    gust: Gusts, 
+    max_gust: MaxGusts, 
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Wind {
-    speed_knot: Option<f32>,
+    //speed_knot: Option<f32>,
     speed_kilometre: Option<f32>,
     direction: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+struct Gusts {
+    speed_kilometre: Option<f32>,
+    //speed_know: Option<f32>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+struct MaxGusts {
+    speed_kilometre: Option<f32>,
+    //speed_knot: Option<f32>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -174,16 +185,6 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>>  {
         None => println!("None value for wind kms"),
     }
 
-    let wind_kts_topic = "outside/weather/wind-kts";
-    let wind_kts = &response.data.wind.speed_knot;
-    match &wind_kts {
-        Some(wind_kts) => client
-                                    .publish(wind_kts_topic, QoS::AtMostOnce, false, wind_kts.to_string())
-                                    .await
-                                    .unwrap(),
-        None => println!("None value for wind kts"),
-    }
-
     let wind_dir_topic = "outside/weather/wind-dir";
     let wind_direction = &response.data.wind.direction;
     match &wind_direction {
@@ -194,20 +195,19 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>>  {
         None => println!("None value for wind direction"),
     }
 
-    let gusts_topic = "outside/weather/gusts";
-    let gusts = &response.data.gust;
-    match &gusts {
-        Some(gusts) => client
-                                 .publish(gusts_topic, QoS::AtMostOnce, false, gusts.to_string())
-                                 .await
-                                 .unwrap(),
+    let gusts_topic = "outside/weather/gusts-kms";
+    let gusts_km= &response.data.gust.speed_kilometre;
+    match &gusts_km {
+        Some(gusts_km ) => client
+                                     .publish(gusts_topic, QoS::AtMostOnce, false, gusts_km.to_string())
+                                     .await
+                                     .unwrap(),
         None => println!("None value for gusts"), // this can later be a log message
     }
 
     let max_gust_topic = "outside/weather/max-gust";
-    let max_gust = &response.data.max_gust;
-     // Later, when sending MQTT messages, we can just send when the pattern matches    
-     match &max_gust {
+    let max_gust = &response.data.gust.speed_kilometre;
+    match &max_gust {
         Some(max_gust) => client
                                     .publish(max_gust_topic, QoS::AtMostOnce, false, max_gust.to_string())
                                     .await
