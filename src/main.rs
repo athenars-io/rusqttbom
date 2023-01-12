@@ -6,7 +6,7 @@ use std::env::var;
 async fn main() {
     observations::get_observations()
         .await
-        .expect("The get weather function didn't seem to work");
+        .expect("The get observations function didn't seem to work");
 }
 
 // This function has been left in main.rs as this will also be used by a future forecasts.rs module

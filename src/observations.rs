@@ -33,10 +33,14 @@ struct APIData {
     //metadata: HashMap<String, String>,
 }
 
+// If the higher level values in the JSON structure are null values, the program will not parse the data correctly.
+// So this program will only run successfully if the API returns some sort of values for each of the desired data points.
+// The end, lower level values, can be null.
 #[derive(Serialize, Deserialize, Debug)]
 struct Weather {
     // Note all of the Options are dealt with in the get_observations function
     // by identifying null / None values then processing accordingly
+    // HOWEVER, where there are parent structs, these cannot have null values
     temp: Option<f32>,
     temp_feels_like: Option<f32>,
     min_temp: MinTemp,
@@ -57,8 +61,9 @@ struct Wind {
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Gusts {
+    //#[serde(default = "default_gusts")]
     speed_kilometre: Option<f32>,
-    //speed_know: Option<f32>,
+    //speed_knot: Option<f32>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -197,16 +202,16 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>>  {
 
     let gusts_topic = "outside/weather/gusts-kms";
     let gusts_km= &response.data.gust.speed_kilometre;
-    match &gusts_km {
-        Some(gusts_km ) => client
+    match &gusts_km { 
+        Some(gusts_km) => client
                                      .publish(gusts_topic, QoS::AtMostOnce, false, gusts_km.to_string())
                                      .await
                                      .unwrap(),
-        None => println!("None value for gusts"), // this can later be a log message
+        None => println!("None value for gusts-km"), // this can later be a log message
     }
 
     let max_gust_topic = "outside/weather/max-gust";
-    let max_gust = &response.data.gust.speed_kilometre;
+    let max_gust = &response.data.max_gust.speed_kilometre;
     match &max_gust {
         Some(max_gust) => client
                                     .publish(max_gust_topic, QoS::AtMostOnce, false, max_gust.to_string())
