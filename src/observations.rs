@@ -5,7 +5,6 @@ use toml;
 use rumqttc::v5::mqttbytes::QoS; // LastWill
 use rumqttc::v5::{MqttOptions, AsyncClient};
 use std::time::Duration;
-use std::env::var;
 // use std::thread;
 // use tokio::{task, time};
 // use serde_json;
@@ -36,7 +35,7 @@ struct APIData {
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Weather {
-    // Note all of the Options are dealt with in the get_weather function
+    // Note all of the Options are dealt with in the get_observations function
     // by identifying null / None values then processing accordingly
     temp: Option<f32>,
     temp_feels_like: Option<f32>,
@@ -67,35 +66,12 @@ struct MinTemp {
     value: Option<f32>,
 }
 
-fn get_config_path() -> String {
-    // Your config.toml should be in $HOME/.config/rusqttbom/config.toml
-    // First, we need to identify the home drive
-    // Then we can add on the remainder of the file path
-    let home_dir = var("HOME");
-    // We need to clean the start and end of this string
-    println!("short path {:?}", home_dir);
-    // We need to convert the type to String
-    let hd_string = format!(
-        "{:?}",home_dir 
-    );
-    let start = 5; // This is to remove formatting from start of file path
-    let length = hd_string.len(); 
-    let end = length-2; // This is to remove same from end
-    let clean_dir = &hd_string[start..end];
-    // Now that we have a clean string we can amend the rest
-    let config_path = format!(
-        "/{}/.config/rusqttbom/config.toml", clean_dir 
-    );
-    config_path
-}
-
 // Result<APIData, Box<dyn Error>> // saving this result type in case I need it again, likely wont need
-pub async fn get_weather() -> Result<(), Box<dyn Error>>  {
-    // Now we can start to read the config file
-    // Optionally, you may want to replace `get_config_path()` with simply "config.toml" for development
-    // However setting it this way allows for the binary to run, including by CRON
+pub async fn get_observations() -> Result<(), Box<dyn Error>>  {
+    // Optionally, you may want to replace `crate::get_config_path()` with a custom hard coded file path for development
+    // Regardless, setting the config file path allows for the binary to run, including by CRON
     let config: Config = {
-        let config_text = fs::read_to_string(get_config_path())
+        let config_text = fs::read_to_string(crate::get_config_path())
             .expect("Could not read the file");
         toml::from_str(&config_text)
             .expect("Could not parse toml")
@@ -248,7 +224,7 @@ pub async fn get_weather() -> Result<(), Box<dyn Error>>  {
        match &event {
            Ok(v) => {
                if n < 1 {
-                   println!("breaking out");
+                   println!("Breaking out. Program now closing");
                    return Ok(());
                }
                println!("Event = {:?}", v);
