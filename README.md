@@ -17,9 +17,8 @@ The MQTT client library used is [rumqttc](https://github.com/bytebeamio/rumqtt).
 - outside/weather/humidity
 - outside/weather/rain-today
 - outside/weather/wind-kms
-- outside/weather/wind-kts
 - outside/weather/wind-dir
-- outside/weather/gusts
+- outside/weather/gusts-kms
 - outside/weather/max-gust
 
 The RusQTTbom MQTT client name is 'rusqttbom'.
@@ -35,6 +34,15 @@ More configuration options will be avaible in later releases. RusQTTbom expects 
 
 Issues can be viewed [here](https://github.com/athenars-io/rusqttbom/issues), and the development plan can be found at the [Project](https://github.com/orgs/athenars-io/projects/1/views/2).
 
-To use this program in its current state, the repo can be forked and cloned, configuration file edited and save in the appropriate file (as explained), then use `cargo build --release`. For best use of this program, be sure to set a CRON job to run the binary every 10mins. For the binary to run, it needs to be able to access the config.toml file in the expected directory as explained above. **Important!**: Do not hit this API more than once every ten minutes. Not abusing this API should help keep it from being shut down or modified.
+To use this program in its current state, the repo can be forked and cloned, configuration file edited and save in the appropriate file (as explained), then use `cargo build --release`. For best use of this program, be sure to set a cron job to run the binary every 10mins. Here is an example cron job that will run this program every 10mins.
+
+```shell
+crontab -e
+*/10 * * * * /full/file/path/to/binary/rusqttbom
+```
+
+For the binary to run, it needs to be able to access the config.toml file in the expected directory as explained above. Once you get the data flowing into your environment via MQTT (via the cron jobs), you can setup automations, notifications, alerts, graph the data and / or save it to a database for longer term storage and analysis. 
+
+**Important!**: Do not hit this API more than once every ten minutes. Not abusing this API should help keep it from being shut down or modified. The API seems to only be updated every 10mins at a minimum so keeping your calls to a minimum makes sense.
 
 Be sure to star this repo to watch the progress if this interests you!
