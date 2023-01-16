@@ -82,6 +82,8 @@ struct MinTemp {
     value: Option<f32>,
 }
 
+// This is the important new addition enabled dealing with null json data structures
+// See below new code for gusts > speed kilometre etc.
 impl APIData {
     fn get_gusts(&self) -> Option<f32> {
         self.data.gust?.speed_kilometre
@@ -240,74 +242,26 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
     //                             .unwrap(),
     //                          None => println!("None value for gusts-km"), // this can later be a log message
     //                     }
-    //      None => println!("Seems null value for Gusts"),
-    // }
 
-    // if let Some(Gusts) = &response.data.gust {
-    //     // println!("Gusts hasa value {:?}", &response.data.gust);
-    //     let gusts_km = &response.data.gust.speed_kilometre;
-    // }
-
-    // let speedz = Gusts {
-    //     Optionggspeed_kilometre: Some(response.data.gust);
-    // }
-
-    // let gusty = Gusts {
-    //     speed_kilometre: response.data.gust,
-    // };
-
-    //let ggg = &response.data.gust?.speed_kilometre;
-
-    // This is attempting to organise the entire API data in a different way
-
-    // let unpacked = Weather {
-    //     temp: Some(response.data.temp)
-    //     temp_feels: Some(response.data.temp_feels_like)
-    //     wind:
-    //         speed_km: Some(response.data.wind.speed_kilometre)
-    //         direction: Some(response.data.wind.direction)
-    //     gust: Some(Gusts)
-    //         speed_km: Some(response.data.gust.speed_kilometre)
-    //     max_gust: Some(MaxGusts)
-    //         speed_km: Some(response.data.max_gust.speed_kilometre)
-    //     max_temp: Some
-    //         value: Some(response.data.max_temp.value)
-    //     min_temp: Some
-    //         value: Some(response.data.min_temp.value)
-    //     rain_today: Some(response.data.rain_since_9am)
-    //     humidity: Some(response.data.humidity)
-
-
+    // THE BELOW IS WORKING INCLUDING WHEN STRUCTURE OF JSON CHANGES, LIKE IN SYDNEY DATA
+    // Just need to implement this for all data / topics now
     let gusts_topic = "outside/weather/gusts-kms";
-    let guggg = response.get_gusts();
-    //let guggg = guggg.to_string();
-    println!("max gussts is {:?}", &guggg);
+    let mut gusttt = String::new();
+    if let Some(guggg) = response.get_gusts() {
+        gusttt = guggg.to_string();
+    }
     client
-        .publish(gusts_topic, QoS::AtMostOnce, false, guggg.to_string())
+        .publish(gusts_topic, QoS::AtMostOnce, false, gusttt)
         .await;
 
-    //     gust: Some(Gusts {
-    //         speed_kilometre: Some(&response.data.gust.speed_kilometre),
-    //     })
-    // }
-
-    // let www = &response.data.gust.get_value()
-
-    // let gusts_km = Some(response.data.gust.unwrap().speed_kilometre);
-    // println!("the apparent gust speed km is {:?}", &gusts_km);
-    
-    
-    // gusts_km.to_string())
-    
-    
     //let gusts_km = &response.data.gust.speed_kilometre;
-    match &gusts_km {
-        Some(gusts_km) => client
-            .publish(gusts_topic, QoS::AtMostOnce, false, guggg)
-            .await
-            //.unwrap(),
-        None => println!("None value for gusts-km"), // this can later be a log message
-    }
+    // match &gusts_km {
+    //     Some(gusts_km) => client
+    //         .publish(gusts_topic, QoS::AtMostOnce, false, guggg)
+    //         .await
+    //         //.unwrap(),
+    //     None => println!("None value for gusts-km"), // this can later be a log message
+    // }
 
     // let max_gust_topic = "outside/weather/max-gust";
     // let max_gust = &response.data.max_gust.speed_kilometre;
