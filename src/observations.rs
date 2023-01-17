@@ -24,7 +24,7 @@ struct Location {
 #[derive(Deserialize, Debug)]
 struct Broker {
     ip: String,
-    // port: u16,
+    port: u16,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -49,7 +49,7 @@ struct Weather {
 struct Wind {
     speed_kilometre: Option<f32>,
     // Temporarily commenting out wind direction as String is not copyable in Rust.
-    // So need to later work out a way to deal with the wind direction value.
+    // Using Copy, Clone was necessary to use ? option in methods for dealing with null values in json structure.
     // direction: Option<String>,
 }
 
@@ -75,9 +75,8 @@ struct MinTemp {
     value: Option<f32>,
 }
 
-// This is the important new addition enabled dealing with null json data structures
-// See below new code for gusts > speed kilometre etc.
 impl APIData {
+    // Methods for returning weather data, if it exists. Returns Some or None.
     fn get_temp(&self) -> Option<f32> {
         self.data.temp
     }
@@ -106,6 +105,7 @@ impl APIData {
         self.data.wind?.speed_kilometre
     }
 
+    // Will need to deal with wind direction later, as cannot copy, clone strings
     // fn get_wind_dir(&self) -> Option<String> {
     //     self.data.wind?.direction
     // }
@@ -119,7 +119,6 @@ impl APIData {
     }
 }
 
-// Result<APIData, Box<dyn Error>> // saving this result type in case I need it again, likely wont need
 pub async fn get_observations() -> Result<(), Box<dyn Error>> {
     // Optionally, you may want to replace `crate::get_config_path()` with a custom hard coded file path for development
     // Regardless, setting the config file path allows for the binary to run, including by CRON
@@ -130,8 +129,6 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
     };
     // let loc_name = config.location.name;
     let loc_hash = config.location.hash;
-    // println!("location name is {}", &loc_name);
-    // println!("location hash is {}", &loc_hash);
 
     let url = format!("https://api.weather.bom.gov.au/v1/locations/{loc_hash}/observations");
 
@@ -147,12 +144,13 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
 
     // Setup MQTT client to be ready to send messages
     let ip = config.broker.ip;
-    let mut mqttoptions = MqttOptions::new("rusqttbom", ip, 1883);
+    let port = config.broker.port;
+    let mut mqttoptions = MqttOptions::new("rusqttbom", ip, port);
     mqttoptions.set_keep_alive(Duration::from_secs(5));
     let (client, mut eventloop) = AsyncClient::new(mqttoptions, 10);
 
     // Publish the data as MQTT messages
-    // All messages are published with QoS 0
+    // Calling the methods which return Some or None
     let temp_c_topic = "outside/weather/current-temp";
     let mut temp_string = String::new();
     if let Some(temppp) = response.get_temp() {
@@ -161,19 +159,6 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
     client
         .publish(temp_c_topic, QoS::AtMostOnce, false, temp_string)
         .await?;
-    // let current_temp = &response.data.temp;
-    // match &current_temp {
-    //     Some(current_temp) => client
-    //         .publish(
-    //             temp_c_topic,
-    //             QoS::AtMostOnce,
-    //             false,
-    //             current_temp.to_string(),
-    //         )
-    //         .await
-    //         .unwrap(),
-    //     None => println!("None value for current temp"),
-    // }
 
     let temp_feels_topic = "outside/weather/temp-feels";
     let mut temp_feels_string = String::new();
@@ -183,19 +168,6 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
     client
         .publish(temp_feels_topic, QoS::AtMostOnce, false, temp_feels_string)
         .await?;
-    // let temp_feels = &response.data.temp_feels_like;
-    // match &temp_feels {
-    //     Some(temp_feels) => client
-    //         .publish(
-    //             temp_feels_topic,
-    //             QoS::AtMostOnce,
-    //             false,
-    //             temp_feels.to_string(),
-    //         )
-    //         .await
-    //         .unwrap(),
-    //     None => println!("None value for temp feels"),
-    // }
 
     let min_temp_topic = "outside/weather/min-temp";
     let mut min_temp_string = String::new();
@@ -205,14 +177,6 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
     client
         .publish(min_temp_topic, QoS::AtMostOnce, false, min_temp_string)
         .await?;
-    // let min_temp = &response.data.min_temp.value;
-    // match &min_temp {
-    //     Some(min_temp) => client
-    //         .publish(min_temp_topic, QoS::AtMostOnce, false, min_temp.to_string())
-    //         .await
-    //         .unwrap(),
-    //     None => println!("None value for min temp"),
-    // }
 
     let max_temp_topic = "outside/weather/max-temp";
     let mut max_temp_string = String::new();
@@ -222,14 +186,6 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
     client
         .publish(max_temp_topic, QoS::AtMostOnce, false, max_temp_string)
         .await?;
-    // let max_temp = &response.data.max_temp.value;
-    // match &max_temp {
-    //     Some(max_temp) => client
-    //         .publish(max_temp_topic, QoS::AtMostOnce, false, max_temp.to_string())
-    //         .await
-    //         .unwrap(),
-    //     None => println!("None value for max temp"),
-    // }
 
     let humidity_topic = "outside/weather/humidity";
     let mut humidity_string = String::new();
@@ -239,14 +195,6 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
     client
         .publish(humidity_topic, QoS::AtMostOnce, false, humidity_string)
         .await?;
-    // let humidity = &response.data.humidity;
-    // match &humidity {
-    //     Some(humidity) => client
-    //         .publish(humidity_topic, QoS::AtMostOnce, false, humidity.to_string())
-    //         .await
-    //         .unwrap(),
-    //     None => println!("None value for humidity"),
-    // }
 
     let rain_today_topic = "outside/weather/rain-today";
     let mut rain_string = String::new();
@@ -256,19 +204,6 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
     client
         .publish(rain_today_topic, QoS::AtMostOnce, false, rain_string)
         .await?;
-    // let rain_today = &response.data.rain_since_9am;
-    // match &rain_today {
-    //     Some(rain_today) => client
-    //         .publish(
-    //             rain_today_topic,
-    //             QoS::AtMostOnce,
-    //             false,
-    //             rain_today.to_string(),
-    //         )
-    //         .await
-    //         .unwrap(),
-    //     None => println!("None value for rain today"),
-    // }
 
     let wind_km_topic = "outside/weather/wind-kms";
     let mut wind_km_string = String::new();
@@ -278,16 +213,8 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
     client
         .publish(wind_km_topic, QoS::AtMostOnce, false, wind_km_string)
         .await?;
-    // let wind_kms = &response.data.wind.speed_kilometre;
-    // match &wind_kms {
-    //     Some(wind_kms) => client
-    //         .publish(wind_km_topic, QoS::AtMostOnce, false, wind_kms.to_string())
-    //         .await
-    //         .unwrap(),
-    //     None => println!("None value for wind kms"),
-    // }
 
-    // Leaving this not done yet due String
+    // LEAVING THIS HERE AS NOT CANNOT COPY STRINGS. WILL DEAL WITH LATER.
     // let wind_dir_topic = "outside/weather/wind-dir";
     // let wind_direction = &response.data.wind.direction;
     // match &wind_direction {
@@ -303,20 +230,6 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
     //     None => println!("None value for wind direction"),
     // }
 
-    // let gusty = &response.data.gust;
-    // let gusts_topic = "outside/weather/gusts-kms";
-    // match &gusty {
-    //     Some(gusty) =>  let gusts_km = &response.data.gust.speed_kilometre;
-    //                     match &gusts_km {
-    //                         Some(gusts_km) => client
-    //                             .publish(gusts_topic, QoS::AtMostOnce, false, gusts_km.to_string())
-    //                             .await
-    //                             .unwrap(),
-    //                          None => println!("None value for gusts-km"), // this can later be a log message
-    //                     }
-
-    // THE BELOW IS WORKING INCLUDING WHEN STRUCTURE OF JSON CHANGES, LIKE IN SYDNEY DATA
-    // Just need to implement this for all data / topics now
     let gusts_topic = "outside/weather/gusts-kms";
     let mut gust_string = String::new();
     if let Some(guggg) = response.get_gusts() {
@@ -326,15 +239,6 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
         .publish(gusts_topic, QoS::AtMostOnce, false, gust_string)
         .await?;
 
-    //let gusts_km = &response.data.gust.speed_kilometre;
-    // match &gusts_km {
-    //     Some(gusts_km) => client
-    //         .publish(gusts_topic, QoS::AtMostOnce, false, guggg)
-    //         .await
-    //         //.unwrap(),
-    //     None => println!("None value for gusts-km"), // this can later be a log message
-    // }
-
     let max_gust_topic = "outside/weather/max-gust";
     let mut max_wind_string = String::new();
     if let Some(maxw) = response.get_gusts_max() {
@@ -343,15 +247,6 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
     client
         .publish(max_gust_topic, QoS::AtMostOnce, false, max_wind_string)
         .await?;
-
-    // let max_gust = &response.data.max_gust.speed_kilometre;
-    // match &max_gust {
-    //     Some(max_gust) => client
-    //         .publish(max_gust_topic, QoS::AtMostOnce, false, max_gust.to_string())
-    //         .await
-    //         .unwrap(),
-    //     None => println!("None value for max gusts"), // this can later be a log message
-    // }
 
     // This endless eventloop is required to publish the messages
     // The count needs to give enough times to receive the ConnAck and complete this program and wait for any failed messages to process
