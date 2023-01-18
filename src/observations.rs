@@ -117,126 +117,21 @@ impl APIData {
     }
 }
 
-pub async fn get_observations() -> Result<(), Box<dyn Error>> {
-    // Optionally, you may want to replace `crate::get_config_path()` with a custom hard coded file path for development
-    // Regardless, setting the config file path allows for the binary to run, including by CRON
+async fn send_mqtt(topicz: &str, payloadz: &'static str) -> Result<(), Box<dyn Error>> {
     let config: Config = {
         let config_text =
             fs::read_to_string(crate::get_config_path()).expect("Could not read the file");
         toml::from_str(&config_text).expect("Could not parse toml")
     };
-    // let loc_name = config.location.name;
-    let loc_hash = config.location.hash;
 
-    let url = format!("https://api.weather.bom.gov.au/v1/locations/{loc_hash}/observations");
-
-    // GET the BOM API data
-    let client = reqwest::Client::new();
-    let response = client
-        .get(url)
-        .header(CONTENT_TYPE, "application/json")
-        .send()
-        .await?
-        .json::<APIData>()
-        .await?;
-
-    // Setup MQTT client to be ready to send messages
     let ip = config.broker.ip;
     let port = config.broker.port;
     let mut mqttoptions = MqttOptions::new("rusqttbom", ip, port);
     mqttoptions.set_keep_alive(Duration::from_secs(5));
     let (client, mut eventloop) = AsyncClient::new(mqttoptions, 10);
 
-    // Publish the data as MQTT messages
-    // Calling the methods which return Some or None
-    let temp_c_topic = "outside/weather/current-temp";
-    let mut temp_string = String::new();
-    if let Some(temppp) = response.get_temp() {
-        temp_string = temppp.to_string();
-    }
     client
-        .publish(temp_c_topic, QoS::AtMostOnce, false, temp_string)
-        .await?;
-
-    let temp_feels_topic = "outside/weather/temp-feels";
-    let mut temp_feels_string = String::new();
-    if let Some(temp_feels) = response.get_temp_feels() {
-        temp_feels_string = temp_feels.to_string();
-    }
-    client
-        .publish(temp_feels_topic, QoS::AtMostOnce, false, temp_feels_string)
-        .await?;
-
-    let min_temp_topic = "outside/weather/min-temp";
-    let mut min_temp_string = String::new();
-    if let Some(min_temppp) = response.get_min_temp() {
-        min_temp_string = min_temppp.to_string();
-    }
-    client
-        .publish(min_temp_topic, QoS::AtMostOnce, false, min_temp_string)
-        .await?;
-
-    let max_temp_topic = "outside/weather/max-temp";
-    let mut max_temp_string = String::new();
-    if let Some(max_temppp) = response.get_max_temp() {
-        max_temp_string = max_temppp.to_string();
-    }
-    client
-        .publish(max_temp_topic, QoS::AtMostOnce, false, max_temp_string)
-        .await?;
-
-    let humidity_topic = "outside/weather/humidity";
-    let mut humidity_string = String::new();
-    if let Some(humidityyy) = response.get_humidity() {
-        humidity_string = humidityyy.to_string();
-    }
-    client
-        .publish(humidity_topic, QoS::AtMostOnce, false, humidity_string)
-        .await?;
-
-    let rain_today_topic = "outside/weather/rain-today";
-    let mut rain_string = String::new();
-    if let Some(rainnn) = response.get_rain() {
-        rain_string = rainnn.to_string();
-    }
-    client
-        .publish(rain_today_topic, QoS::AtMostOnce, false, rain_string)
-        .await?;
-
-    let wind_km_topic = "outside/weather/wind-kms";
-    let mut windstring = String::new();
-    if let Some(windkm) = &response.data.wind.speed_kilometre {
-        windstring = windkm.to_string();
-    }
-    client
-        .publish(wind_km_topic, QoS::AtMostOnce, false, windstring)
-        .await?;
-
-    let wind_dir_topic = "outside/weather/wind-dir";
-    let mut wind_dir_string = String::new();
-    if let Some(winddir) = &response.data.wind.direction {
-        wind_dir_string = winddir.to_string();
-    }
-    client
-        .publish(wind_dir_topic, QoS::AtMostOnce, false, wind_dir_string)
-        .await?;
-
-    let gusts_topic = "outside/weather/gusts-kms";
-    let mut gust_string = String::new();
-    if let Some(guggg) = response.get_gusts() {
-        gust_string = guggg.to_string();
-    }
-    client
-        .publish(gusts_topic, QoS::AtMostOnce, false, gust_string)
-        .await?;
-
-    let max_gust_topic = "outside/weather/max-gust";
-    let mut max_wind_string = String::new();
-    if let Some(maxw) = response.get_gusts_max() {
-        max_wind_string = maxw.to_string();
-    }
-    client
-        .publish(max_gust_topic, QoS::AtMostOnce, false, max_wind_string)
+        .publish(topicz, QoS::AtMostOnce, false, payloadz)
         .await?;
 
     // This endless eventloop is required to publish the messages
@@ -259,6 +154,156 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
             }
         }
     }
+}
+
+// Result<(), Box<dyn Error>>
+pub async fn get_observations() {
+    // Optionally, you may want to replace `crate::get_config_path()` with a custom hard coded file path for development
+    // Regardless, setting the config file path allows for the binary to run, including by CRON
+    let config: Config = {
+        let config_text =
+            fs::read_to_string(crate::get_config_path()).expect("Could not read the file");
+        toml::from_str(&config_text).expect("Could not parse toml")
+    };
+    // let loc_name = config.location.name;
+    let loc_hash = config.location.hash;
+
+    let url = format!("https://api.weather.bom.gov.au/v1/locations/{loc_hash}/observations");
+
+    // GET the BOM API data
+    let client = reqwest::Client::new();
+    let response = client
+        .get(url)
+        .header(CONTENT_TYPE, "application/json")
+        .send()
+        .await
+        .unwrap()
+        .json::<APIData>()
+        .await;
+
+    send_mqtt("rusqtttest", "test message").await;
+
+    //#################################################
+
+    // // Setup MQTT client to be ready to send messages
+    // let ip = config.broker.ip;
+    // let port = config.broker.port;
+    // let mut mqttoptions = MqttOptions::new("rusqttbom", ip, port);
+    // mqttoptions.set_keep_alive(Duration::from_secs(5));
+    // let (client, mut eventloop) = AsyncClient::new(mqttoptions, 10);
+
+    // Publish the data as MQTT messages
+    // Calling the methods which return Some or None
+    // let temp_c_topic = "outside/weather/current-temp";
+    // let mut temp_string = String::new();
+    // if let Some(temppp) = response.get_temp() {
+    //     temp_string = temppp.to_string();
+    // }
+    // client
+    //     .publish(temp_c_topic, QoS::AtMostOnce, false, temp_string)
+    //     .await?;
+
+    // let temp_feels_topic = "outside/weather/temp-feels";
+    // let mut temp_feels_string = String::new();
+    // if let Some(temp_feels) = response.get_temp_feels() {
+    //     temp_feels_string = temp_feels.to_string();
+    // }
+    // client
+    //     .publish(temp_feels_topic, QoS::AtMostOnce, false, temp_feels_string)
+    //     .await?;
+
+    // let min_temp_topic = "outside/weather/min-temp";
+    // let mut min_temp_string = String::new();
+    // if let Some(min_temppp) = response.get_min_temp() {
+    //     min_temp_string = min_temppp.to_string();
+    // }
+    // client
+    //     .publish(min_temp_topic, QoS::AtMostOnce, false, min_temp_string)
+    //     .await?;
+
+    // let max_temp_topic = "outside/weather/max-temp";
+    // let mut max_temp_string = String::new();
+    // if let Some(max_temppp) = response.get_max_temp() {
+    //     max_temp_string = max_temppp.to_string();
+    // }
+    // client
+    //     .publish(max_temp_topic, QoS::AtMostOnce, false, max_temp_string)
+    //     .await?;
+
+    // let humidity_topic = "outside/weather/humidity";
+    // let mut humidity_string = String::new();
+    // if let Some(humidityyy) = response.get_humidity() {
+    //     humidity_string = humidityyy.to_string();
+    // }
+    // client
+    //     .publish(humidity_topic, QoS::AtMostOnce, false, humidity_string)
+    //     .await?;
+
+    // let rain_today_topic = "outside/weather/rain-today";
+    // let mut rain_string = String::new();
+    // if let Some(rainnn) = response.get_rain() {
+    //     rain_string = rainnn.to_string();
+    // }
+    // client
+    //     .publish(rain_today_topic, QoS::AtMostOnce, false, rain_string)
+    //     .await?;
+
+    // let wind_km_topic = "outside/weather/wind-kms";
+    // let mut windstring = String::new();
+    // if let Some(windkm) = &response.data.wind.speed_kilometre {
+    //     windstring = windkm.to_string();
+    // }
+    // client
+    //     .publish(wind_km_topic, QoS::AtMostOnce, false, windstring)
+    //     .await?;
+
+    // let wind_dir_topic = "outside/weather/wind-dir";
+    // let mut wind_dir_string = String::new();
+    // if let Some(winddir) = &response.data.wind.direction {
+    //     wind_dir_string = winddir.to_string();
+    // }
+    // client
+    //     .publish(wind_dir_topic, QoS::AtMostOnce, false, wind_dir_string)
+    //     .await?;
+
+    // let gusts_topic = "outside/weather/gusts-kms";
+    // let mut gust_string = String::new();
+    // if let Some(guggg) = response.get_gusts() {
+    //     gust_string = guggg.to_string();
+    // }
+    // client
+    //     .publish(gusts_topic, QoS::AtMostOnce, false, gust_string)
+    //     .await?;
+
+    // let max_gust_topic = "outside/weather/max-gust";
+    // let mut max_wind_string = String::new();
+    // if let Some(maxw) = response.get_gusts_max() {
+    //     max_wind_string = maxw.to_string();
+    // }
+    // client
+    //     .publish(max_gust_topic, QoS::AtMostOnce, false, max_wind_string)
+    //     .await?;
+
+    // This endless eventloop is required to publish the messages
+    // The count needs to give enough times to receive the ConnAck and complete this program and wait for any failed messages to process
+    // let mut n = 15;
+    // loop {
+    //     let event = eventloop.poll().await;
+    //     n -= 1; // this countdown allows us to break out of the endless loop closing the program
+    //     match &event {
+    //         Ok(v) => {
+    //             if n < 1 {
+    //                 println!("Breaking out. Program now closing");
+    //                 return Ok(());
+    //             }
+    //             println!("Event = {:?}", v);
+    //         }
+    //         Err(e) => {
+    //             println!("Error = {:?}", e);
+    //             return Ok(());
+    //         }
+    //     }
+    // }
 
     // The below works well and correct
     // We can build on the below later for error checking etc.
