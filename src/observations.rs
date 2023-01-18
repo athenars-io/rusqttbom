@@ -40,17 +40,15 @@ struct Weather {
     max_temp: Option<MaxTemp>,
     humidity: Option<f32>,
     rain_since_9am: Option<f32>,
-    wind: Option<Wind>,
+    wind: Wind,
     gust: Option<Gusts>,
     max_gust: Option<MaxGusts>,
 }
 
-#[derive(Serialize, Deserialize, Debug, Copy, Clone)]
+#[derive(Serialize, Deserialize, Debug)]
 struct Wind {
     speed_kilometre: Option<f32>,
-    // Temporarily commenting out wind direction as String is not copyable in Rust.
-    // Using Copy, Clone was necessary to use ? option in methods for dealing with null values in json structure.
-    // direction: Option<String>,
+    direction: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone)]
@@ -101,9 +99,9 @@ impl APIData {
         self.data.rain_since_9am
     }
 
-    fn get_wind_km(&self) -> Option<f32> {
-        self.data.wind?.speed_kilometre
-    }
+    // fn get_wind_km(&self) -> Option<f32> {
+    //     self.data.wind?.speed_kilometre
+    // }
 
     // Will need to deal with wind direction later, as cannot copy, clone strings
     // fn get_wind_dir(&self) -> Option<String> {
@@ -206,29 +204,22 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
         .await?;
 
     let wind_km_topic = "outside/weather/wind-kms";
-    let mut wind_km_string = String::new();
-    if let Some(winddd) = response.get_wind_km() {
-        wind_km_string = winddd.to_string();
+    let mut windstring = String::new();
+    if let Some(windkm) = &response.data.wind.speed_kilometre {
+        windstring = windkm.to_string();
     }
     client
-        .publish(wind_km_topic, QoS::AtMostOnce, false, wind_km_string)
+        .publish(wind_km_topic, QoS::AtMostOnce, false, windstring)
         .await?;
 
-    // LEAVING THIS HERE AS NOT CANNOT COPY STRINGS. WILL DEAL WITH LATER.
-    // let wind_dir_topic = "outside/weather/wind-dir";
-    // let wind_direction = &response.data.wind.direction;
-    // match &wind_direction {
-    //     Some(wind_direction) => client
-    //         .publish(
-    //             wind_dir_topic,
-    //             QoS::AtMostOnce,
-    //             false,
-    //             wind_direction.to_string(),
-    //         )
-    //         .await
-    //         .unwrap(),
-    //     None => println!("None value for wind direction"),
-    // }
+    let wind_dir_topic = "outside/weather/wind-dir";
+    let mut wind_dir_string = String::new();
+    if let Some(winddir) = &response.data.wind.direction {
+        wind_dir_string = winddir.to_string();
+    }
+    client
+        .publish(wind_dir_topic, QoS::AtMostOnce, false, wind_dir_string)
+        .await?;
 
     let gusts_topic = "outside/weather/gusts-kms";
     let mut gust_string = String::new();
