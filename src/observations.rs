@@ -73,11 +73,23 @@ struct MinTemp {
     value: Option<f32>,
 }
 
+// impl Weather {
+//     pub fn send_temp(&self) {
+//         println!("the temp is {:?}", self.temp)
+//         // send_mqtt("rusqttbom/temp", self.temp)
+//     }
+// }
+
 impl APIData {
     // Methods for returning weather data, if it exists. Returns Some or None.
     fn get_temp(&self) -> Option<f32> {
+        // println!("self temp is {:?}", self.data.temp);
         self.data.temp
     }
+
+    // fn valid_temp(&self) -> bool {
+    //     Some(self.data.temp) < 50: f32;
+    // }
 
     fn get_temp_feels(&self) -> Option<f32> {
         self.data.temp_feels_like
@@ -117,7 +129,7 @@ impl APIData {
     }
 }
 
-async fn send_mqtt(topicz: &str, payloadz: &'static str) -> Result<(), Box<dyn Error>> {
+async fn send_mqtt(topicz: &str, payloadz: String) -> Result<(), Box<dyn Error>> {
     let config: Config = {
         let config_text =
             fs::read_to_string(crate::get_config_path()).expect("Could not read the file");
@@ -156,8 +168,12 @@ async fn send_mqtt(topicz: &str, payloadz: &'static str) -> Result<(), Box<dyn E
     }
 }
 
+fn valid_temp(temp: f32) -> bool {
+    temp > -20.0 && temp < 50.0
+}
+
 // Result<(), Box<dyn Error>>
-pub async fn get_observations() {
+pub async fn get_observations() -> Result<(), Box<dyn Error>> {
     // Optionally, you may want to replace `crate::get_config_path()` with a custom hard coded file path for development
     // Regardless, setting the config file path allows for the binary to run, including by CRON
     let config: Config = {
@@ -176,12 +192,16 @@ pub async fn get_observations() {
         .get(url)
         .header(CONTENT_TYPE, "application/json")
         .send()
-        .await
-        .unwrap()
+        .await?
+        // .unwrap()
         .json::<APIData>()
-        .await;
+        .await?;
 
-    send_mqtt("rusqtttest", "test message").await;
+    // send_mqtt("rusqtttest", "24.5").await;
+    // let mut f = Weather {};
+    // f.send_temp();
+
+    // response.get_temp();
 
     //#################################################
 
@@ -194,11 +214,16 @@ pub async fn get_observations() {
 
     // Publish the data as MQTT messages
     // Calling the methods which return Some or None
-    // let temp_c_topic = "outside/weather/current-temp";
-    // let mut temp_string = String::new();
-    // if let Some(temppp) = response.get_temp() {
-    //     temp_string = temppp.to_string();
-    // }
+    let temp_c_topic = "rusqtttest/weather/current-temp";
+    let mut temp_string = String::new();
+    if let Some(temppp) = response.get_temp() {
+        if valid_temp(temppp) {
+            temp_string = temppp.to_string();
+        }
+    }
+    send_mqtt(temp_c_topic, temp_string).await?;
+
+    Ok(())
     // client
     //     .publish(temp_c_topic, QoS::AtMostOnce, false, temp_string)
     //     .await?;
