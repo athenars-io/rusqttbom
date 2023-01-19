@@ -1,18 +1,12 @@
 use reqwest::{self, header::CONTENT_TYPE};
-use rumqttc::v5::mqttbytes::QoS; // LastWill
-use rumqttc::v5::{AsyncClient, MqttOptions};
 use serde::{Deserialize, Serialize};
-use std::time::Duration;
 use std::{error::Error, fs};
-use toml;
-// use std::thread;
-use tokio::task; //time
-                 // use serde_json;
+use toml; //time
 
 #[derive(Deserialize, Debug)]
 struct Config {
     location: Location,
-    broker: Broker,
+    // broker: Broker,
 }
 
 #[derive(Deserialize, Debug)]
@@ -21,11 +15,11 @@ struct Location {
     hash: String,
 }
 
-#[derive(Deserialize, Debug)]
-struct Broker {
-    ip: String,
-    port: u16,
-}
+// #[derive(Deserialize, Debug)]
+// struct Broker {
+//     ip: String,
+//     port: u16,
+// }
 
 #[derive(Serialize, Deserialize, Debug)]
 struct APIData {
@@ -108,56 +102,6 @@ impl APIData {
     }
 }
 
-async fn send_mqtt(topicz: &str, payloadz: String) -> Result<(), Box<dyn Error>> {
-    let config: Config = {
-        let config_text =
-            fs::read_to_string(crate::get_config_path()).expect("Could not read the file");
-        toml::from_str(&config_text).expect("Could not parse toml")
-    };
-
-    let ip = config.broker.ip;
-    let port = config.broker.port;
-    let mut mqttoptions = MqttOptions::new("rusqttbom", ip, port);
-    mqttoptions.set_keep_alive(Duration::from_secs(5));
-    let (client, mut eventloop) = AsyncClient::new(mqttoptions, 10);
-
-    let topiczz = topicz.to_string();
-    task::spawn(async move {
-        sendit(client.clone(), topiczz, payloadz).await;
-        client.disconnect().await.expect("Could not disconnect");
-        // time::sleep(Duration::from_secs(3)).await;
-    });
-
-    // This endless eventloop is required to publish the messages
-    // The count gives enough time to deal with connection issues,
-    // however, each task should disconnect deliberately after publishing
-    let mut n = 5;
-    loop {
-        let event = eventloop.poll().await;
-        n -= 1; // this countdown allows us to break out of the endless loop closing the program
-        match &event {
-            Ok(v) => {
-                if n < 1 {
-                    println!("Breaking out. Program now closing");
-                    return Ok(());
-                }
-                println!("Event = {:?}", v);
-            }
-            Err(e) => {
-                println!("Error = {:?}", e);
-                return Ok(());
-            }
-        }
-    }
-}
-
-async fn sendit(client: AsyncClient, topicz: String, payloadz: String) {
-    client
-        .publish(topicz, QoS::AtMostOnce, false, payloadz)
-        .await
-        .unwrap();
-}
-
 fn valid_temp(temp: f32) -> bool {
     temp > -20.0 && temp < 50.0
 }
@@ -179,7 +123,7 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
     // Regardless, setting the config file path allows for the binary to run, including by CRON
     let config: Config = {
         let config_text =
-            fs::read_to_string(crate::get_config_path()).expect("Could not read the file");
+            fs::read_to_string(rusqttbom::get_config_path()).expect("Could not read the file");
         toml::from_str(&config_text).expect("Could not parse toml")
     };
     // let loc_name = config.location.name;
@@ -203,7 +147,7 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
             let mut temp_string = String::new();
             temp_string = temppp.to_string();
             let temp_c_topic = "outside/weather/current-temp";
-            send_mqtt(temp_c_topic, temp_string).await?;
+            rusqttbom::send_mqtt(temp_c_topic, temp_string).await?;
         }
     }
 
@@ -212,7 +156,7 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
             let mut temp_feels_string = String::new();
             temp_feels_string = temp_feels.to_string();
             let temp_feels_topic = "outside/weather/temp-feels";
-            send_mqtt(temp_feels_topic, temp_feels_string).await?;
+            rusqttbom::send_mqtt(temp_feels_topic, temp_feels_string).await?;
         }
     }
 
@@ -221,7 +165,7 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
             let mut min_temp_string = String::new();
             min_temp_string = min_temppp.to_string();
             let min_temp_topic = "outside/weather/min-temp";
-            send_mqtt(min_temp_topic, min_temp_string).await?;
+            rusqttbom::send_mqtt(min_temp_topic, min_temp_string).await?;
         }
     }
 
@@ -230,7 +174,7 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
             let mut max_temp_string = String::new();
             max_temp_string = max_temppp.to_string();
             let max_temp_topic = "outside/weather/max-temp";
-            send_mqtt(max_temp_topic, max_temp_string).await?;
+            rusqttbom::send_mqtt(max_temp_topic, max_temp_string).await?;
         }
     }
 
@@ -239,7 +183,7 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
             let mut humidity_string = String::new();
             humidity_string = humidityyy.to_string();
             let humidity_topic = "outside/weather/humidity";
-            send_mqtt(humidity_topic, humidity_string).await?;
+            rusqttbom::send_mqtt(humidity_topic, humidity_string).await?;
         }
     }
 
@@ -248,7 +192,7 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
             let mut rain_string = String::new();
             rain_string = rainnn.to_string();
             let rain_today_topic = "outside/weather/rain-today";
-            send_mqtt(rain_today_topic, rain_string).await?;
+            rusqttbom::send_mqtt(rain_today_topic, rain_string).await?;
         }
     }
 
@@ -258,7 +202,7 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
             let mut windstring = String::new();
             windstring = windkm.to_string();
             let wind_km_topic = "outside/weather/wind-kms";
-            send_mqtt(wind_km_topic, windstring).await?;
+            rusqttbom::send_mqtt(wind_km_topic, windstring).await?;
         }
     }
 
@@ -266,7 +210,7 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
         let mut wind_dir_string = String::new();
         wind_dir_string = winddir.to_string();
         let wind_dir_topic = "outside/weather/wind-dir";
-        send_mqtt(wind_dir_topic, wind_dir_string).await?;
+        rusqttbom::send_mqtt(wind_dir_topic, wind_dir_string).await?;
     }
 
     if let Some(guggg) = response.get_gusts() {
@@ -274,7 +218,9 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
             let mut gust_string = String::new();
             gust_string = guggg.to_string();
             let gusts_topic = "outside/weather/gusts-kms";
-            send_mqtt(gusts_topic, gust_string).await.unwrap();
+            rusqttbom::send_mqtt(gusts_topic, gust_string)
+                .await
+                .unwrap();
         }
     }
 
@@ -283,7 +229,9 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
             let mut max_wind_string = String::new();
             max_wind_string = maxw.to_string();
             let max_gust_topic = "outside/weather/max-gust";
-            send_mqtt(max_gust_topic, max_wind_string).await.unwrap();
+            rusqttbom::send_mqtt(max_gust_topic, max_wind_string)
+                .await
+                .unwrap();
         }
     }
     Ok(())
