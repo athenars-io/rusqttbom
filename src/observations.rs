@@ -179,7 +179,6 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
             max_wind_string = maxw.to_string();
             let max_gust_topic = "outside/weather/max-gust";
             rusqttbom::send_mqtt(max_gust_topic, max_wind_string).await?;
-            // .expect("Could not send max gusts");
         }
     }
     Ok(())
