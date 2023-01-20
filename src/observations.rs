@@ -1,25 +1,6 @@
 use reqwest::{self, header::CONTENT_TYPE};
 use serde::{Deserialize, Serialize};
-use std::{error::Error, fs};
-use toml; //time
-
-#[derive(Deserialize, Debug)]
-struct Config {
-    location: Location,
-    // broker: Broker,
-}
-
-#[derive(Deserialize, Debug)]
-struct Location {
-    // name: String,
-    hash: String,
-}
-
-// #[derive(Deserialize, Debug)]
-// struct Broker {
-//     ip: String,
-//     port: u16,
-// }
+use std::error::Error;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct APIData {
@@ -48,13 +29,11 @@ struct Wind {
 #[derive(Serialize, Deserialize, Debug, Copy, Clone)]
 struct Gusts {
     speed_kilometre: Option<f32>,
-    //speed_knot: Option<f32>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone)]
 struct MaxGusts {
     speed_kilometre: Option<f32>,
-    //speed_knot: Option<f32>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone)]
@@ -102,36 +81,9 @@ impl APIData {
     }
 }
 
-// fn valid_temp(temp: f32) -> bool {
-//     temp > -20.0 && temp < 50.0
-// }
-
-// fn valid_wind(wind: f32) -> bool {
-//     wind > -1.0 && wind < 400.0
-// }
-
-// fn valid_humidity(humidity: f32) -> bool {
-//     humidity > -1.0 && humidity < 101.0
-// }
-
-// fn valid_rain(rain: f32) -> bool {
-//     rain > -1.0 && rain < 300.0
-// }
-
 pub async fn get_observations() -> Result<(), Box<dyn Error>> {
-    // Optionally, you may want to replace `crate::get_config_path()` with a custom hard coded file path for development
-    // Regardless, setting the config file path allows for the binary to run, including by CRON
-    let config: Config = {
-        let config_text =
-            fs::read_to_string(rusqttbom::get_config_path()).expect("Could not read the file");
-        toml::from_str(&config_text).expect("Could not parse toml")
-    };
-    // let loc_name = config.location.name;
-    let loc_hash = config.location.hash;
-
+    let loc_hash = rusqttbom::get_config().location.hash;
     let url = format!("https://api.weather.bom.gov.au/v1/locations/{loc_hash}/observations");
-
-    // GET the BOM API data and send to the structs
     let client = reqwest::Client::new();
     let response = client
         .get(url)
@@ -196,7 +148,6 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
         }
     }
 
-    // // Note wind kms managed differently
     if let Some(windkm) = response.data.wind.speed_kilometre {
         if rusqttbom::valid_wind(windkm) {
             let mut windstring = String::new();
@@ -220,7 +171,7 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
             let gusts_topic = "outside/weather/gusts-kms";
             rusqttbom::send_mqtt(gusts_topic, gust_string)
                 .await
-                .unwrap();
+                .expect("Could not send wind gusts");
         }
     }
 
@@ -231,7 +182,7 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
             let max_gust_topic = "outside/weather/max-gust";
             rusqttbom::send_mqtt(max_gust_topic, max_wind_string)
                 .await
-                .unwrap();
+                .expect("Could not send max gusts");
         }
     }
     Ok(())

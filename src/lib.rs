@@ -7,10 +7,16 @@ use std::{error::Error, fs};
 use tokio::task;
 
 #[derive(Deserialize, Debug)]
-struct Config {
-    // location: Location,
+pub struct Config {
+    pub location: Location,
     broker: Broker,
     validation: Validation,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct Location {
+    pub hash: String,
+    // name: String,
 }
 
 #[derive(Deserialize, Debug)]
@@ -31,46 +37,6 @@ struct Validation {
     maxrain: f32,
 }
 
-pub fn valid_temp(value: f32) -> bool {
-    let config: Config = {
-        let config_text = fs::read_to_string(get_config_path()).expect("Could not read the file");
-        toml::from_str(&config_text).expect("Could not parse toml")
-    };
-    let min = config.validation.mintemp;
-    let max = config.validation.maxtemp;
-    value >= min && value <= max
-}
-
-pub fn valid_wind(value: f32) -> bool {
-    let config: Config = {
-        let config_text = fs::read_to_string(get_config_path()).expect("Could not read the file");
-        toml::from_str(&config_text).expect("Could not parse toml")
-    };
-    let min = config.validation.minwind;
-    let max = config.validation.maxwind;
-    value >= min && value <= max
-}
-
-pub fn valid_humidity(value: f32) -> bool {
-    let config: Config = {
-        let config_text = fs::read_to_string(get_config_path()).expect("Could not read the file");
-        toml::from_str(&config_text).expect("Could not parse toml")
-    };
-    let min = config.validation.minhumidity;
-    let max = config.validation.maxhumidity;
-    value >= min && value <= max
-}
-
-pub fn valid_rain(value: f32) -> bool {
-    let config: Config = {
-        let config_text = fs::read_to_string(get_config_path()).expect("Could not read the file");
-        toml::from_str(&config_text).expect("Could not parse toml")
-    };
-    let min = config.validation.minrain;
-    let max = config.validation.maxrain;
-    value >= min && value <= max
-}
-
 pub fn get_config_path() -> String {
     // Your config.toml should be in $HOME/.config/rusqttbom/config.toml
     // First, we need to identify the home drive
@@ -89,14 +55,41 @@ pub fn get_config_path() -> String {
     config_path
 }
 
-pub async fn send_mqtt(topicz: &str, payloadz: String) -> Result<(), Box<dyn Error>> {
+pub fn get_config() -> Config {
     let config: Config = {
         let config_text = fs::read_to_string(get_config_path()).expect("Could not read the file");
         toml::from_str(&config_text).expect("Could not parse toml")
     };
+    config
+}
 
-    let ip = config.broker.ip;
-    let port = config.broker.port;
+pub fn valid_temp(value: f32) -> bool {
+    let min = get_config().validation.mintemp;
+    let max = get_config().validation.maxtemp;
+    value >= min && value <= max
+}
+
+pub fn valid_wind(value: f32) -> bool {
+    let min = get_config().validation.minwind;
+    let max = get_config().validation.maxwind;
+    value >= min && value <= max
+}
+
+pub fn valid_humidity(value: f32) -> bool {
+    let min = get_config().validation.minhumidity;
+    let max = get_config().validation.maxhumidity;
+    value >= min && value <= max
+}
+
+pub fn valid_rain(value: f32) -> bool {
+    let min = get_config().validation.minrain;
+    let max = get_config().validation.maxrain;
+    value >= min && value <= max
+}
+
+pub async fn send_mqtt(topicz: &str, payloadz: String) -> Result<(), Box<dyn Error>> {
+    let ip = get_config().broker.ip;
+    let port = get_config().broker.port;
     let mut mqttoptions = MqttOptions::new("rusqttbom", ip, port);
     mqttoptions.set_keep_alive(Duration::from_secs(5));
     let (client, mut eventloop) = AsyncClient::new(mqttoptions, 10);
