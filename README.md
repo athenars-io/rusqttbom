@@ -2,13 +2,13 @@
 
 RusQTTbom collects weather data from the Bureau of Meterology (BOM) then publishes said data locally via MQTT messages. BOM weather data is only for Australian locations. This weather data is obtained via an undocumented API, which was seemingly discovered, or at least popularised, thanks to [this Github repo](https://github.com/chris-horner/SocketWeather) - and [this one](https://github.com/bremor/bureau_of_meteorology). Because this is an undocumented API, it could be turned off at any time. BOM weather data is generally accepted as being the most accurate weather data in Australia.
 
-The BOM weather data API is used in [this BOM weather site](https://weather.bom.gov.au/). Go to this website then enter your suburb / location in the search bar then click on the correct result. Take a note of the seven digit *geohash* in the URL in the address bar of your browser. This will be used to get data for your location and you need to add this to your config.toml file.
+The BOM weather data API is used in [this BOM weather site](https://weather.bom.gov.au/). Go to this website then enter your suburb / location in the search bar then click on the correct result. Take a note of the seven digit *geohash* in the URL in the address bar of your browser. This will be used to get data for your location and you need to add this to your `config.toml` file.
 
 The main idea with this program is to collect the BOM weather data via the API, parse the data, check for null or erroneous entries, then publish the wanted data in a local network via MQTT messages. This way, we can have many programs do things with the MQTT data in a de-coupled manner. For example, we can setup alerts and notifications. We can use various home automations. We can also write the data to a database. By using an MQTT message bus, we can loosely couple all of these services, which provides desired reliability in our system. In essense, RusQTTbom becomes a local weather sensor providing BOM weather data.
 
-==Note: This repo should be considered as being in the early *alpha* stage so is still in active initial development however it functionally works fine as is for testing or personal use==
+==Note: This repo should be considered as being in the *alpha* stage so is still in active initial development however it functionally works well as is for testing or personal use==
 
-The MQTT client library used is [rumqttc](https://github.com/bytebeamio/rumqtt). Weather data that is published by RusQTTbom via MQTT consists of the following values, by the used MQTT topics:
+Weather data that is published by RusQTTbom via MQTT consists of the following values, by the used MQTT topics:
 
 - outside/weather/current-temp
 - outside/weather/temp-feels
@@ -21,27 +21,37 @@ The MQTT client library used is [rumqttc](https://github.com/bytebeamio/rumqtt).
 - outside/weather/gusts-kms
 - outside/weather/max-gust
 
-The RusQTTbom MQTT client name is 'rusqttbom'.
+RusQTTbom publishes the weather data asyncronously, which is totally unnecessary but it does. The RusQTTbom MQTT client name is 'rusqttbom'.
 
-Configuration options are limited in this initial release. Options consist of the following:
+User configuration options consist of the following:
 
-- location name
-- location geohash
+- Location name
+- Location geohash
 - MQTT broker IP address
 - MQTT broker port
+- Minimum valid temperature
+- Maximum valid temperature
+- Minimum valid wind speed
+- Maximum valid wind speed
+- Minimum valid humidity
+- Maximum valid humidity
+- Minimum valid rainfall
+- Maximum valid rainfall
 
-More configuration options will be avaible in later releases. RusQTTbom expects the `config.toml` file to be saved under the users home directory in `/.config/rusqttbom/config.toml`. The program will not create the directory or move the config file there. Currently, a user needs to do this, however it only needs to be done once. This works MacOS and it *should* work on other OSs too. Let me know if there are issues.
+The data validation settings are to catch erroneous entries such as -99 or 999 and the like.
+
+More configuration options will be avaible in later releases. RusQTTbom expects the `config.toml` file to be saved under the users home directory in `/.config/rusqttbom/config.toml`. The program will not create the directory or move the config file there. A user needs to do this, however it only needs to be done once. This works MacOS and it *should* work on other OSs too. Let me know if there are issues.
 
 Issues can be viewed [here](https://github.com/athenars-io/rusqttbom/issues), and the development plan can be found at the [Project](https://github.com/orgs/athenars-io/projects/1/views/2).
 
-To use this program in its current state, the repo can be forked and cloned, configuration file edited and save in the appropriate file (as explained), then use `cargo build --release`. For best use of this program, be sure to set a cron job to run the binary every 10mins. Here is an example cron job that will run this program every 10mins.
+To use this program in its current state, the repo can be forked and cloned, configuration file edited and saved in the appropriate file (as explained), then use `cargo build --release`. For best use of this program, be sure to set a cron job to run the binary every 10mins. Here is an example cron job that will run this program every 10mins.
 
 ```shell
 crontab -e
 */10 * * * * /full/file/path/to/binary/rusqttbom
 ```
 
-For the binary to run, it needs to be able to access the config.toml file in the expected directory as explained above. Once you get the data flowing into your environment via MQTT (via the cron jobs), you can setup automations, notifications, alerts, graph the data and / or save it to a database for longer term storage and analysis. 
+For the binary to run, it needs to be able to access the `config.toml` file in the expected directory as explained above. Once you get the data flowing into your environment via MQTT (via the cron jobs), you can setup automations, notifications, alerts, graph the data and / or save it to a database for longer term storage and analysis. 
 
 **Important!**: Do not hit this API more than once every ten minutes. Not abusing this API should help keep it from being shut down or modified. The API seems to only be updated every 10mins at a minimum so keeping your calls to a minimum makes sense.
 
