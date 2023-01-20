@@ -1,21 +1,74 @@
-use std::env::var;
-use std::{error::Error, fs};
 use rumqttc::v5::mqttbytes::QoS;
 use rumqttc::v5::{AsyncClient, MqttOptions};
-use std::time::Duration;
-use tokio::task;
 use serde::Deserialize;
+use std::env::var;
+use std::time::Duration;
+use std::{error::Error, fs};
+use tokio::task;
 
 #[derive(Deserialize, Debug)]
 struct Config {
     // location: Location,
     broker: Broker,
+    validation: Validation,
 }
 
 #[derive(Deserialize, Debug)]
 struct Broker {
     ip: String,
     port: u16,
+}
+
+#[derive(Deserialize, Debug)]
+struct Validation {
+    mintemp: f32,
+    maxtemp: f32,
+    minwind: f32,
+    maxwind: f32,
+    minhumidity: f32,
+    maxhumidity: f32,
+    minrain: f32,
+    maxrain: f32,
+}
+
+pub fn valid_temp(value: f32) -> bool {
+    let config: Config = {
+        let config_text = fs::read_to_string(get_config_path()).expect("Could not read the file");
+        toml::from_str(&config_text).expect("Could not parse toml")
+    };
+    let min = config.validation.mintemp;
+    let max = config.validation.maxtemp;
+    value >= min && value <= max
+}
+
+pub fn valid_wind(value: f32) -> bool {
+    let config: Config = {
+        let config_text = fs::read_to_string(get_config_path()).expect("Could not read the file");
+        toml::from_str(&config_text).expect("Could not parse toml")
+    };
+    let min = config.validation.minwind;
+    let max = config.validation.maxwind;
+    value >= min && value <= max
+}
+
+pub fn valid_humidity(value: f32) -> bool {
+    let config: Config = {
+        let config_text = fs::read_to_string(get_config_path()).expect("Could not read the file");
+        toml::from_str(&config_text).expect("Could not parse toml")
+    };
+    let min = config.validation.minhumidity;
+    let max = config.validation.maxhumidity;
+    value >= min && value <= max
+}
+
+pub fn valid_rain(value: f32) -> bool {
+    let config: Config = {
+        let config_text = fs::read_to_string(get_config_path()).expect("Could not read the file");
+        toml::from_str(&config_text).expect("Could not parse toml")
+    };
+    let min = config.validation.minrain;
+    let max = config.validation.maxrain;
+    value >= min && value <= max
 }
 
 pub fn get_config_path() -> String {
@@ -38,8 +91,7 @@ pub fn get_config_path() -> String {
 
 pub async fn send_mqtt(topicz: &str, payloadz: String) -> Result<(), Box<dyn Error>> {
     let config: Config = {
-        let config_text =
-            fs::read_to_string(get_config_path()).expect("Could not read the file");
+        let config_text = fs::read_to_string(get_config_path()).expect("Could not read the file");
         toml::from_str(&config_text).expect("Could not parse toml")
     };
 

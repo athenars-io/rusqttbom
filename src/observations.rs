@@ -102,21 +102,21 @@ impl APIData {
     }
 }
 
-fn valid_temp(temp: f32) -> bool {
-    temp > -20.0 && temp < 50.0
-}
+// fn valid_temp(temp: f32) -> bool {
+//     temp > -20.0 && temp < 50.0
+// }
 
-fn valid_wind(wind: f32) -> bool {
-    wind > -1.0 && wind < 400.0
-}
+// fn valid_wind(wind: f32) -> bool {
+//     wind > -1.0 && wind < 400.0
+// }
 
-fn valid_humidity(humidity: f32) -> bool {
-    humidity > -1.0 && humidity < 101.0
-}
+// fn valid_humidity(humidity: f32) -> bool {
+//     humidity > -1.0 && humidity < 101.0
+// }
 
-fn valid_rain(rain: f32) -> bool {
-    rain > -1.0 && rain < 300.0
-}
+// fn valid_rain(rain: f32) -> bool {
+//     rain > -1.0 && rain < 300.0
+// }
 
 pub async fn get_observations() -> Result<(), Box<dyn Error>> {
     // Optionally, you may want to replace `crate::get_config_path()` with a custom hard coded file path for development
@@ -143,7 +143,7 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
 
     // Publish the data as MQTT messages
     if let Some(temppp) = response.get_temp() {
-        if valid_temp(temppp) {
+        if rusqttbom::valid_temp(temppp) {
             let mut temp_string = String::new();
             temp_string = temppp.to_string();
             let temp_c_topic = "outside/weather/current-temp";
@@ -152,7 +152,7 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
     }
 
     if let Some(temp_feels) = response.get_temp_feels() {
-        if valid_temp(temp_feels) {
+        if rusqttbom::valid_temp(temp_feels) {
             let mut temp_feels_string = String::new();
             temp_feels_string = temp_feels.to_string();
             let temp_feels_topic = "outside/weather/temp-feels";
@@ -161,7 +161,7 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
     }
 
     if let Some(min_temppp) = response.get_min_temp() {
-        if valid_temp(min_temppp) {
+        if rusqttbom::valid_temp(min_temppp) {
             let mut min_temp_string = String::new();
             min_temp_string = min_temppp.to_string();
             let min_temp_topic = "outside/weather/min-temp";
@@ -170,7 +170,7 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
     }
 
     if let Some(max_temppp) = response.get_max_temp() {
-        if valid_temp(max_temppp) {
+        if rusqttbom::valid_temp(max_temppp) {
             let mut max_temp_string = String::new();
             max_temp_string = max_temppp.to_string();
             let max_temp_topic = "outside/weather/max-temp";
@@ -179,7 +179,7 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
     }
 
     if let Some(humidityyy) = response.get_humidity() {
-        if valid_humidity(humidityyy) {
+        if rusqttbom::valid_humidity(humidityyy) {
             let mut humidity_string = String::new();
             humidity_string = humidityyy.to_string();
             let humidity_topic = "outside/weather/humidity";
@@ -188,7 +188,7 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
     }
 
     if let Some(rainnn) = response.get_rain() {
-        if valid_rain(rainnn) {
+        if rusqttbom::valid_rain(rainnn) {
             let mut rain_string = String::new();
             rain_string = rainnn.to_string();
             let rain_today_topic = "outside/weather/rain-today";
@@ -198,7 +198,7 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
 
     // // Note wind kms managed differently
     if let Some(windkm) = response.data.wind.speed_kilometre {
-        if valid_wind(windkm) {
+        if rusqttbom::valid_wind(windkm) {
             let mut windstring = String::new();
             windstring = windkm.to_string();
             let wind_km_topic = "outside/weather/wind-kms";
@@ -214,7 +214,7 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
     }
 
     if let Some(guggg) = response.get_gusts() {
-        if valid_wind(guggg) {
+        if rusqttbom::valid_wind(guggg) {
             let mut gust_string = String::new();
             gust_string = guggg.to_string();
             let gusts_topic = "outside/weather/gusts-kms";
@@ -225,7 +225,7 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
     }
 
     if let Some(maxw) = response.get_gusts_max() {
-        if valid_wind(maxw) {
+        if rusqttbom::valid_wind(maxw) {
             let mut max_wind_string = String::new();
             max_wind_string = maxw.to_string();
             let max_gust_topic = "outside/weather/max-gust";
