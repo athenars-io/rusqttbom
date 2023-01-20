@@ -169,9 +169,7 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
             let mut gust_string = String::new();
             gust_string = guggg.to_string();
             let gusts_topic = "outside/weather/gusts-kms";
-            rusqttbom::send_mqtt(gusts_topic, gust_string)
-                .await
-                .expect("Could not send wind gusts");
+            rusqttbom::send_mqtt(gusts_topic, gust_string).await?;
         }
     }
 
@@ -180,9 +178,8 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
             let mut max_wind_string = String::new();
             max_wind_string = maxw.to_string();
             let max_gust_topic = "outside/weather/max-gust";
-            rusqttbom::send_mqtt(max_gust_topic, max_wind_string)
-                .await
-                .expect("Could not send max gusts");
+            rusqttbom::send_mqtt(max_gust_topic, max_wind_string).await?;
+            // .expect("Could not send max gusts");
         }
     }
     Ok(())
