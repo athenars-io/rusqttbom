@@ -12,3 +12,19 @@ hash = "r3gx2f"         # like "r3gx2f8"
 [broker]
 ip = ""                 # like "192.168.1.55"
 port = 1883             # like 1883 which is a common default mqtt broker port
+
+[validation]
+# These values are about data validation
+# This is the catch erroneous entries like -99 or 999 etc.
+# Ensure min and max values are outside what is possible
+# These values are likely to be location / climate dependent
+# Change the values only, do not change the spelling or wording of the fields
+mintemp = -20.0
+maxtemp = 50.0
+minwind = 0.0
+maxwind = 400.0
+minhumidity = 0.0
+maxhumidity = 100.0
+minrain = 0.0
+maxrain = 300.0
+
