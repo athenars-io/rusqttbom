@@ -130,3 +130,81 @@ async fn sendit(client: AsyncClient, topicz: String, payloadz: String) {
         .await
         .unwrap();
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    // These first tests use hardcoded values.
+    // They will need to be changed if the config.toml has modified validation values.
+    fn test_valid_temp() {
+        assert_eq!(valid_temp(23.0), true);
+    }
+
+    #[test]
+    fn test_bad_high_temp() {
+        assert_eq!(valid_temp(55.0), false);
+    }
+
+    #[test]
+    fn test_bad_low_temp() {
+        assert_eq!(valid_temp(-21.0), false);
+    }
+
+    #[test]
+    fn test_valid_wind() {
+        assert_eq!(valid_wind(23.0), true);
+    }
+
+    #[test]
+    fn test_bad_high_wind() {
+        assert_eq!(valid_wind(425.0), false);
+    }
+
+    #[test]
+    fn test_bad_low_wind() {
+        assert_eq!(valid_wind(-2.0), false);
+    }
+
+    #[test]
+    fn test_valid_humidity() {
+        assert_eq!(valid_humidity(23.7), true);
+    }
+
+    #[test]
+    fn test_bad_high_humidity() {
+        assert_eq!(valid_humidity(102.0), false);
+    }
+
+    #[test]
+    fn test_bad_low_humidity() {
+        assert_eq!(valid_humidity(-0.2), false);
+    }
+
+    #[test]
+    fn test_valid_rain() {
+        assert_eq!(valid_rain(22.0), true);
+    }
+
+    #[test]
+    fn test_bad_high_rain() {
+        assert_eq!(valid_rain(599.0), false);
+    }
+
+    #[test]
+    fn test_bad_low_rain() {
+        assert_eq!(valid_rain(-2.0), false);
+    }
+
+    #[test]
+    // I'm not sure if this is a good test of the code.
+    fn test_config_file_path() {
+        let result = get_config_path();
+        assert!(
+            result.contains("config.toml"),
+            "Config file path did not contain config.toml. Instead it was {}",
+            result
+        );
+    }
+}
