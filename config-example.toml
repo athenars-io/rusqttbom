@@ -28,3 +28,21 @@ maxhumidity = 100.0
 minrain = 0.0
 maxrain = 300.0
 
+[topics]
+# MQTT topics MUST NOT have a / at the beginning or end of the topic.
+# Topics can have any number of levels, for example...
+# A valid topic is "test". Another is "test/first". Another is "test/first/second".
+# These are invalid: "/test", "test/" and "/test/".
+# The following example topics can be changed to fit your MQTT topic naming scheme.
+# Do NOT change the fields themselves.
+temp = "outside/weather/current-temp"
+tempfeels = "outside/weather/temp-feels"
+mintemp = "outside/weather/min-temp"
+maxtemp = "outside/weather/max-temp"
+humidity = "outside/weather/humidity"
+rain = "outside/weather/rain-today"
+windkms = "outside/weather/wind-kms"
+winddir = "outside/weather/wind-dir"
+gusts = "outside/weather/gusts-kms"
+maxgust = "outside/weather/max-gust"
+

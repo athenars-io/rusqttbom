@@ -11,6 +11,7 @@ pub struct Config {
     pub location: Location,
     broker: Broker,
     validation: Validation,
+    pub topics: Topics,
 }
 
 #[derive(Deserialize, Debug)]
@@ -35,6 +36,20 @@ struct Validation {
     maxhumidity: f32,
     minrain: f32,
     maxrain: f32,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct Topics {
+    pub temp: String,
+    pub tempfeels: String,
+    pub mintemp: String,
+    pub maxtemp: String,
+    pub humidity: String,
+    pub rain: String,
+    pub windkms: String,
+    pub winddir: String,
+    pub gusts: String,
+    pub maxgust: String,
 }
 
 pub fn get_config_path() -> String {
@@ -87,7 +102,7 @@ pub fn valid_rain(value: f32) -> bool {
     value >= min && value <= max
 }
 
-pub async fn send_mqtt(topicz: &str, payloadz: String) -> Result<(), Box<dyn Error>> {
+pub async fn send_mqtt(topicz: String, payloadz: String) -> Result<(), Box<dyn Error>> {
     let ip = get_config().broker.ip;
     let port = get_config().broker.port;
     let mut mqttoptions = MqttOptions::new("rusqttbom", ip, port);
