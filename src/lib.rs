@@ -50,6 +50,7 @@ pub struct Topics {
     pub winddir: String,
     pub gusts: String,
     pub maxgust: String,
+    pub rainchance: String,
 }
 
 pub fn get_config_path() -> String {
