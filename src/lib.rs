@@ -51,6 +51,16 @@ pub struct Topics {
     pub gusts: String,
     pub maxgust: String,
     pub rainchance: String,
+    pub rainmin: String,
+    pub rainmax: String,
+    pub tempmin: String,
+    pub tempmax: String,
+    pub sunrise: String,
+    pub sunset: String,
+    pub extended: String,
+    pub short: String,
+    pub uvcat: String,
+    pub uvindex: String,
 }
 
 pub fn get_config_path() -> String {
@@ -59,7 +69,7 @@ pub fn get_config_path() -> String {
     // Then we can add on the remainder of the file path
     let home_dir = var("HOME");
     // We need to clean the start and end of this string
-    println!("short path {:?}", home_dir);
+    // println!("short path {:?}", home_dir);
     // We need to convert the type to String
     let hd_string = format!("{:?}", home_dir);
     let start = 5; // This is to remove formatting from start of file path

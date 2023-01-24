@@ -28,8 +28,8 @@ struct Days {
 #[derive(Serialize, Deserialize, Debug)]
 struct Today {
     rain: Option<Rain>,
-    uv: Option<Uv>,
-    astronomical: Option<Astronomical>,
+    uv: Uv,
+    astronomical: Astronomical,
     temp_max: Option<f32>,
     temp_min: Option<f32>,
     extended_text: Option<String>,
@@ -41,7 +41,7 @@ struct Today {
 #[derive(Serialize, Deserialize, Debug, Copy, Clone)]
 struct Rain {
     chance: Option<f32>,
-    // amount: Option<Amount>,
+    amount: Option<Amount>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone)]
@@ -326,32 +326,40 @@ impl Forecasts {
     fn get_rain_chance(&self) -> Option<f32> {
         self.data.o.rain?.chance
     }
+
+    fn get_f_rain_min(&self) -> Option<f32> {
+        self.data.o.rain?.amount?.min
+    }
+
+    fn get_f_rain_max(&self) -> Option<f32> {
+        self.data.o.rain?.amount?.max
+    }
+
+    fn get_f_temp_min(&self) -> Option<f32> {
+        self.data.o.temp_min
+    }
+
+    fn get_f_temp_max(&self) -> Option<f32> {
+        self.data.o.temp_max
+    }
+
+    // fn get_uv_cat(&self) -> Option<String> {
+    //     self.data.o.uv?.category
+    // }
+
+    // Cannot use UV index in this manner due to a String value being in Struct
+    // fn get_uv_index(&self) -> Option<f32> {
+    //     self.data.o.uv?.max_index
+    // }
+
+    // fn get_sunrise(&self) -> Option<String> {
+    //     self.data.o.astronomical?.sunrise_time
+    // }
+
+    // fn get_sunset(&self) -> Option<String> {
+    //     self.data.o.astronomical?.sunset_time
+    // }
 }
-
-// fn get_f_rain_min(&self) -> Option<f32> {
-//     self.data.today.rain?.amount?.min
-// }
-
-// fn get_f_rain_max(&self) -> Option<f32> {
-//     self.data.today.rain?.amount?.max
-// }
-
-// fn get_uv_cat(&self) -> Option<String> {
-//     self.data.today.uv?.category
-// }
-
-// fn get_uv_index(&self) -> Option<f32> {
-//     self.data.today.uv?.max_index
-// }
-
-// fn get_sunrise(&self) -> Option<String> {
-//     self.data.today.astronomical?.sunrise_time
-// }
-
-// fn get_sunset(&self) -> Option<String> {
-//     self.data.today.astronomical?.sunset_time
-// }
-// }
 
 pub async fn get_forecasts() -> Result<(), Box<dyn Error>> {
     let loc_hash = rusqttbom::get_config().location.hash;
@@ -366,18 +374,98 @@ pub async fn get_forecasts() -> Result<(), Box<dyn Error>> {
         .json::<Forecasts>()
         .await?;
 
-    // println!("Response is {:?}", response);
-
     // Publish the data as MQTT messages
+
+    // 0: Today
     if let Some(rain_chanc) = response.get_rain_chance() {
-        // println!("first line");
-        //if rusqttbom::valid_rain(rain_chanc) {
-        // println!("second line");
-        let mut rain_c_string = String::new();
-        rain_c_string = rain_chanc.to_string();
-        // println!("rain c string is {}", rain_c_string);
-        let rain_c_topic = rusqttbom::get_config().topics.rainchance;
-        rusqttbom::send_mqtt(rain_c_topic, rain_c_string).await?;
+        if rusqttbom::valid_rain(rain_chanc) {
+            let mut rain_c_string = String::new();
+            rain_c_string = rain_chanc.to_string();
+            let rain_c_topic = rusqttbom::get_config().topics.rainchance;
+            rusqttbom::send_mqtt(rain_c_topic, rain_c_string).await?;
+        }
     }
+
+    if let Some(rain_minn) = response.get_f_rain_min() {
+        if rusqttbom::valid_rain(rain_minn) {
+            let mut rain_min_string = String::new();
+            rain_min_string = rain_minn.to_string();
+            let rain_min_topic = rusqttbom::get_config().topics.rainmin;
+            rusqttbom::send_mqtt(rain_min_topic, rain_min_string).await?;
+        }
+    }
+
+    if let Some(rain_maxx) = response.get_f_rain_max() {
+        if rusqttbom::valid_rain(rain_maxx) {
+            let mut rain_max_string = String::new();
+            rain_max_string = rain_maxx.to_string();
+            let rain_max_topic = rusqttbom::get_config().topics.rainmax;
+            rusqttbom::send_mqtt(rain_max_topic, rain_max_string).await?;
+        }
+    }
+
+    if let Some(f_temp_min) = response.get_f_temp_min() {
+        if rusqttbom::valid_temp(f_temp_min) {
+            let mut ftemp_min_string = String::new();
+            ftemp_min_string = f_temp_min.to_string();
+            let ftemp_min_topic = rusqttbom::get_config().topics.tempmin;
+            rusqttbom::send_mqtt(ftemp_min_topic, ftemp_min_string).await?;
+        }
+    }
+
+    if let Some(f_temp_max) = response.get_f_temp_max() {
+        if rusqttbom::valid_temp(f_temp_max) {
+            let mut ftemp_max_string = String::new();
+            ftemp_max_string = f_temp_max.to_string();
+            let ftemp_max_topic = rusqttbom::get_config().topics.tempmax;
+            rusqttbom::send_mqtt(ftemp_max_topic, ftemp_max_string).await?;
+        }
+    }
+
+    if let Some(sunrise) = response.data.o.astronomical.sunrise_time {
+        let mut sunrise_str = String::new();
+        sunrise_str = sunrise.to_string();
+        let sunrise_topic = rusqttbom::get_config().topics.sunrise;
+        rusqttbom::send_mqtt(sunrise_topic, sunrise_str).await?;
+    }
+
+    if let Some(sunset) = response.data.o.astronomical.sunset_time {
+        let mut sunset_str = String::new();
+        sunset_str = sunset.to_string();
+        let sunset_topic = rusqttbom::get_config().topics.sunset;
+        rusqttbom::send_mqtt(sunset_topic, sunset_str).await?;
+    }
+
+    if let Some(ext) = response.data.o.extended_text {
+        let mut ext_str = String::new();
+        ext_str = ext.to_string();
+        let ext_topic = rusqttbom::get_config().topics.extended;
+        rusqttbom::send_mqtt(ext_topic, ext_str).await?;
+    }
+
+    if let Some(short) = response.data.o.short_text {
+        let mut short_str = String::new();
+        short_str = short.to_string();
+        let short_topic = rusqttbom::get_config().topics.short;
+        rusqttbom::send_mqtt(short_topic, short_str).await?;
+    }
+
+    if let Some(uvcat) = response.data.o.uv.category {
+        let mut uvcat_str = String::new();
+        uvcat_str = uvcat.to_string();
+        let uvcat_topic = rusqttbom::get_config().topics.uvcat;
+        rusqttbom::send_mqtt(uvcat_topic, uvcat_str).await?;
+    }
+
+    if let Some(uvindex) = response.data.o.uv.max_index {
+        let mut uvindex_str = String::new();
+        uvindex_str = uvindex.to_string();
+        let uvindex_topic = rusqttbom::get_config().topics.uvindex;
+        rusqttbom::send_mqtt(uvindex_topic, uvindex_str).await?;
+    }
+
+    // 1: Next day
+    // todo
+
     Ok(())
 }
