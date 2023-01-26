@@ -61,6 +61,17 @@ pub struct Topics {
     pub short: String,
     pub uvcat: String,
     pub uvindex: String,
+    pub rainchance1: String,
+    pub rainmin1: String,
+    pub rainmax1: String,
+    pub tempmin1: String,
+    pub tempmax1: String,
+    pub sunrise1: String,
+    pub sunset1: String,
+    pub extended1: String,
+    pub short1: String,
+    pub uvcat1: String,
+    pub uvindex1: String,
 }
 
 pub fn get_config_path() -> String {
@@ -107,10 +118,10 @@ pub fn valid_humidity(value: f32) -> bool {
     value >= min && value <= max
 }
 
-pub fn valid_rain(value: f32) -> bool {
+pub fn valid_rain(value: &f32) -> bool {
     let min = get_config().validation.minrain;
     let max = get_config().validation.maxrain;
-    value >= min && value <= max
+    value >= &min && value <= &max
 }
 
 pub async fn send_mqtt(topicz: String, payloadz: String) -> Result<(), Box<dyn Error>> {

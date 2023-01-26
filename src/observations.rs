@@ -139,7 +139,7 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
         }
     }
 
-    if let Some(rainnn) = response.get_rain() {
+    if let Some(rainnn) = &response.get_rain() {
         if rusqttbom::valid_rain(rainnn) {
             let mut rain_string = String::new();
             rain_string = rainnn.to_string();
