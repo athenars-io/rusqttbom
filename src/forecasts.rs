@@ -17,12 +17,11 @@ struct Meta {
 struct Days {
     o: Today,
     o1: First,
-    _2: Second,
-    _3: Third,
-    _4: Fourth,
-    _5: Fifth,
-    _6: Sixth,
-    // _7: Seventh,
+    o2: Second,
+    o3: Third,
+    o4: Fourth,
+    o5: Fifth,
+    o6: Sixth,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -115,7 +114,7 @@ struct Second {
 #[derive(Serialize, Deserialize, Debug, Copy, Clone)]
 struct Rain2 {
     chance: Option<f32>,
-    // amount: Option<Amount>,
+    amount: Option<Amount>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone)]
@@ -139,8 +138,8 @@ struct Astronomical2 {
 #[derive(Serialize, Deserialize, Debug)]
 struct Third {
     rain: Option<Rain3>,
-    uv: Option<Uv3>,
-    astronomical: Option<Astronomical3>,
+    uv: Uv3,
+    astronomical: Astronomical3,
     temp_max: Option<f32>,
     temp_min: Option<f32>,
     extended_text: Option<String>,
@@ -152,7 +151,7 @@ struct Third {
 #[derive(Serialize, Deserialize, Debug, Copy, Clone)]
 struct Rain3 {
     chance: Option<f32>,
-    // amount: Option<Amount>,
+    amount: Option<Amount>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone)]
@@ -176,8 +175,8 @@ struct Astronomical3 {
 #[derive(Serialize, Deserialize, Debug)]
 struct Fourth {
     rain: Option<Rain4>,
-    uv: Option<Uv4>,
-    astronomical: Option<Astronomical4>,
+    uv: Uv4,
+    astronomical: Astronomical4,
     temp_max: Option<f32>,
     temp_min: Option<f32>,
     extended_text: Option<String>,
@@ -189,7 +188,7 @@ struct Fourth {
 #[derive(Serialize, Deserialize, Debug, Copy, Clone)]
 struct Rain4 {
     chance: Option<f32>,
-    // amount: Option<Amount>,
+    amount: Option<Amount>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone)]
@@ -213,8 +212,8 @@ struct Astronomical4 {
 #[derive(Serialize, Deserialize, Debug)]
 struct Fifth {
     rain: Option<Rain5>,
-    uv: Option<Uv5>,
-    astronomical: Option<Astronomical5>,
+    uv: Uv5,
+    astronomical: Astronomical5,
     temp_max: Option<f32>,
     temp_min: Option<f32>,
     extended_text: Option<String>,
@@ -226,7 +225,7 @@ struct Fifth {
 #[derive(Serialize, Deserialize, Debug, Copy, Clone)]
 struct Rain5 {
     chance: Option<f32>,
-    // amount: Option<Amount>,
+    amount: Option<Amount>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone)]
@@ -250,8 +249,8 @@ struct Astronomical5 {
 #[derive(Serialize, Deserialize, Debug)]
 struct Sixth {
     rain: Option<Rain6>,
-    uv: Option<Uv6>,
-    astronomical: Option<Astronomical6>,
+    uv: Uv6,
+    astronomical: Astronomical6,
     temp_max: Option<f32>,
     temp_min: Option<f32>,
     extended_text: Option<String>,
@@ -263,7 +262,7 @@ struct Sixth {
 #[derive(Serialize, Deserialize, Debug, Copy, Clone)]
 struct Rain6 {
     chance: Option<f32>,
-    // amount: Option<Amount>,
+    amount: Option<Amount>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone)]
@@ -283,43 +282,6 @@ struct Astronomical6 {
     sunrise_time: Option<String>,
     sunset_time: Option<String>,
 }
-
-// #[derive(Serialize, Deserialize, Debug)]
-// struct Seventh {
-//     rain: Option<Rain7>,
-//     uv: Option<Uv7>,
-//     astronomical: Option<Astronomical7>,
-//     temp_max: Option<f32>,
-//     temp_min: Option<f32>,
-//     extended_text: Option<String>,
-//     short_text: Option<String>,
-//     surf_danger: Option<String>,
-//     fire_danger: Option<String>,
-// }
-
-// #[derive(Serialize, Deserialize, Debug, Copy, Clone)]
-// struct Rain7 {
-//     chance: Option<f32>,
-//     // amount: Option<Amount>,
-// }
-
-// #[derive(Serialize, Deserialize, Debug, Copy, Clone)]
-// struct Amount7 {
-//     min: Option<f32>,
-//     max: Option<f32>,
-// }
-
-// #[derive(Serialize, Deserialize, Debug)]
-// struct Uv7 {
-//     category: Option<String>,
-//     max_index: Option<f32>,
-// }
-
-// #[derive(Serialize, Deserialize, Debug)]
-// struct Astronomical7 {
-//     sunrise_time: Option<String>,
-//     sunset_time: Option<String>,
-// }
 
 impl Forecasts {
     // Methods for returning forecast data, if it exists. Returns Some or None.
@@ -343,6 +305,7 @@ impl Forecasts {
         self.data.o.temp_max
     }
 
+    // Cannot use same process for data containing Strings as struct cannot use Copy or Clone
     // fn get_uv_cat(&self) -> Option<String> {
     //     self.data.o.uv?.category
     // }
@@ -360,6 +323,7 @@ impl Forecasts {
     //     self.data.o.astronomical?.sunset_time
     // }
 
+    // Second day
     fn get_rain_chance1(&self) -> Option<f32> {
         self.data.o1.rain?.chance
     }

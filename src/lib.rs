@@ -124,6 +124,8 @@ pub fn valid_rain(value: &f32) -> bool {
     value >= &min && value <= &max
 }
 
+// Include validating MQTT topics by detecting if they begin or end with /
+
 pub async fn send_mqtt(topicz: String, payloadz: String) -> Result<(), Box<dyn Error>> {
     let ip = get_config().broker.ip;
     let port = get_config().broker.port;
