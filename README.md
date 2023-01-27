@@ -6,6 +6,8 @@ The main idea with this program is to collect the BOM weather data via the API, 
 
 The BOM weather data API is used in [this BOM weather site](https://weather.bom.gov.au/). Go to this website then enter your suburb / location in the search bar then click on the correct result. Take a note of the seven digit *geohash* in the URL in the address bar of your browser. This will be used to get data for your location and you need to add this to your `config.toml` file.
 
+RusQTTbom publishes weather observations for the current day, as well as forecasts for the current day and the next day. Forecasts for seven days will be coming in future releases.
+
 Weather data that is published by RusQTTbom via MQTT consists of the following values, by the MQTT topics:
 
 - outside/weather/current-temp
@@ -18,6 +20,28 @@ Weather data that is published by RusQTTbom via MQTT consists of the following v
 - outside/weather/wind-dir
 - outside/weather/gusts-kms
 - outside/weather/max-gust
+- outside/forecast-0/rain-chance
+- outside/forecast-0/rain-min
+- outside/forecast-0/rain-max
+- outside/forecast-0/temp-min
+- outside/forecast-0/temp-max
+- outside/forecast-0/sunrise
+- outside/forecast-0/sunset
+- outside/forecast-0/extended
+- outside/forecast-0/short
+- outside/forecast-0/uv-category
+- outside/forecast-0/uv-index
+- outside/forecast-1/rain-chance
+- outside/forecast-1/rain-min
+- outside/forecast-1/rain-max
+- outside/forecast-1/temp-min
+- outside/forecast-1/temp-max
+- outside/forecast-1/sunrise
+- outside/forecast-1/sunset
+- outside/forecast-1/extended
+- outside/forecast-1/short
+- outside/forecast-1/uv-category
+- outside/forecast-1/uv-index
 
 All of the above MQTT topic names are user configurable (via the `config.toml` file). Other user configuration options consist of the following:
 
