@@ -17,7 +17,7 @@ pub struct Config {
 #[derive(Deserialize, Debug)]
 pub struct Location {
     pub hash: String,
-    // name: String,
+    // name: String, // this may later be needed if I chose to use name to identify hash
 }
 
 #[derive(Deserialize, Debug)]
@@ -74,6 +74,7 @@ pub struct Topics {
     pub uvindex1: String,
 }
 
+// This function generates the User config path using var("HOME")
 pub fn get_config_path() -> String {
     // Your config.toml should be in $HOME/.config/rusqttbom/config.toml
     // First, we need to identify the home drive
@@ -118,14 +119,15 @@ pub fn valid_humidity(value: f32) -> bool {
     value >= min && value <= max
 }
 
-pub fn valid_rain(value: &f32) -> bool {
+pub fn valid_rain(value: f32) -> bool {
     let min = get_config().validation.minrain;
     let max = get_config().validation.maxrain;
-    value >= &min && value <= &max
+    value >= min && value <= max
 }
 
 // Include validating MQTT topics by detecting if they begin or end with /
 
+// This function builds the MQTT messages ready to send
 pub async fn send_mqtt(topicz: String, payloadz: String) -> Result<(), Box<dyn Error>> {
     let ip = get_config().broker.ip;
     let port = get_config().broker.port;
@@ -163,6 +165,7 @@ pub async fn send_mqtt(topicz: String, payloadz: String) -> Result<(), Box<dyn E
     }
 }
 
+// This function sends the MQTT messages
 async fn sendit(client: AsyncClient, topicz: String, payloadz: String) {
     client
         .publish(topicz, QoS::AtMostOnce, false, payloadz)

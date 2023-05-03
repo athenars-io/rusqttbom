@@ -81,6 +81,7 @@ impl APIData {
     }
 }
 
+// Fetches current weather observations
 pub async fn get_observations() -> Result<(), Box<dyn Error>> {
     let loc_hash = rusqttbom::get_config().location.hash;
     let url = format!("https://api.weather.bom.gov.au/v1/locations/{loc_hash}/observations");
@@ -139,7 +140,7 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
         }
     }
 
-    if let Some(rainnn) = &response.get_rain() {
+    if let Some(rainnn) = response.get_rain() {
         if rusqttbom::valid_rain(rainnn) {
             let mut rain_string = String::new();
             rain_string = rainnn.to_string();

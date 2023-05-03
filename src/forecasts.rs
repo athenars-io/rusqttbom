@@ -345,8 +345,10 @@ impl Forecasts {
     }
 }
 
+// Fetch the data
+
 pub async fn get_forecasts() -> Result<(), Box<dyn Error>> {
-    let loc_hash = rusqttbom::get_config().location.hash;
+    let loc_hash = rusqttbom::get_config().location.hash; // calls function pulling from config.toml
     let url = format!("https://api.weather.bom.gov.au/v1/locations/{loc_hash}/forecasts/daily");
     let client = reqwest::Client::new();
     let response = client
@@ -354,23 +356,25 @@ pub async fn get_forecasts() -> Result<(), Box<dyn Error>> {
         .header(CONTENT_TYPE, "application/json")
         .send()
         .await?
-        // .text()
-        .json::<Forecasts>()
+        // .text() // delete this? legacy scaffolding.
+        .json::<Forecasts>() // Forecasts is the top level Struct
         .await?;
 
     // Publish the data as MQTT messages
 
     // 0: Today
-    if let Some(rain_chanc) = &response.get_rain_chance() {
+    if let Some(rain_chanc) = response.get_rain_chance() {
+        // the next line calls function checking validity of retrieved data
         if rusqttbom::valid_rain(rain_chanc) {
             let mut rain_c_string = String::new();
             rain_c_string = rain_chanc.to_string();
             let rain_c_topic = rusqttbom::get_config().topics.rainchance;
+            // The next line calls function that actually sends the MQTT messages
             rusqttbom::send_mqtt(rain_c_topic, rain_c_string).await?;
         }
     }
 
-    if let Some(rain_minn) = &response.get_f_rain_min() {
+    if let Some(rain_minn) = response.get_f_rain_min() {
         if rusqttbom::valid_rain(rain_minn) {
             let mut rain_min_string = String::new();
             rain_min_string = rain_minn.to_string();
@@ -379,7 +383,7 @@ pub async fn get_forecasts() -> Result<(), Box<dyn Error>> {
         }
     }
 
-    if let Some(rain_maxx) = &response.get_f_rain_max() {
+    if let Some(rain_maxx) = response.get_f_rain_max() {
         if rusqttbom::valid_rain(rain_maxx) {
             let mut rain_max_string = String::new();
             rain_max_string = rain_maxx.to_string();
@@ -449,7 +453,7 @@ pub async fn get_forecasts() -> Result<(), Box<dyn Error>> {
     }
 
     // 1: Next day
-    if let Some(rain_chanc1) = &response.get_rain_chance1() {
+    if let Some(rain_chanc1) = response.get_rain_chance1() {
         if rusqttbom::valid_rain(rain_chanc1) {
             let mut rain_c_string1 = String::new();
             rain_c_string1 = rain_chanc1.to_string();
@@ -458,7 +462,7 @@ pub async fn get_forecasts() -> Result<(), Box<dyn Error>> {
         }
     }
 
-    if let Some(rain_minn1) = &response.get_f_rain_min1() {
+    if let Some(rain_minn1) = response.get_f_rain_min1() {
         if rusqttbom::valid_rain(rain_minn1) {
             let mut rain_min_string1 = String::new();
             rain_min_string1 = rain_minn1.to_string();
@@ -467,7 +471,7 @@ pub async fn get_forecasts() -> Result<(), Box<dyn Error>> {
         }
     }
 
-    if let Some(rain_maxx1) = &response.get_f_rain_max1() {
+    if let Some(rain_maxx1) = response.get_f_rain_max1() {
         if rusqttbom::valid_rain(rain_maxx1) {
             let mut rain_max_string1 = String::new();
             rain_max_string1 = rain_maxx1.to_string();
