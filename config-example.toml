@@ -45,6 +45,10 @@ windkms = "outside/weather/wind-kms"
 winddir = "outside/weather/wind-dir"
 gusts = "outside/weather/gusts-kms"
 maxgust = "outside/weather/max-gust"
+<<<<<<< HEAD
+=======
+
+>>>>>>> forecasts
 # Forecast data
 # Today / 0
 rainchance = "outside/forecast-0/rain-chance"
@@ -58,6 +62,11 @@ extended = "outside/forecast-0/extended"
 short = "outside/forecast-0/short"
 uvcat = "outside/forecast-0/uv-category"
 uvindex = "outside/forecast-0/uv-index"
+<<<<<<< HEAD
+=======
+firedanger = "outside/forecast-0/firedanger"
+
+>>>>>>> forecasts
 # Tomorrow / 1
 rainchance1 = "outside/forecast-1/rain-chance"
 rainmin1 = "outside/forecast-1/rain-min"
@@ -70,4 +79,8 @@ extended1 = "outside/forecast-1/extended"
 short1 = "outside/forecast-1/short"
 uvcat1 = "outside/forecast-1/uv-category"
 uvindex1 = "outside/forecast-1/uv-index"
+<<<<<<< HEAD
 #
+=======
+firedanger1 = "outside/forecast-1/firedanger"
+>>>>>>> forecasts
