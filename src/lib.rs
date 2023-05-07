@@ -61,6 +61,7 @@ pub struct Topics {
     pub short: String,
     pub uvcat: String,
     pub uvindex: String,
+    pub firedanger: String,
     pub rainchance1: String,
     pub rainmin1: String,
     pub rainmax1: String,
@@ -72,6 +73,7 @@ pub struct Topics {
     pub short1: String,
     pub uvcat1: String,
     pub uvindex1: String,
+    pub firedanger1: String,
 }
 
 // This function generates the User config path using var("HOME")
@@ -226,17 +228,17 @@ mod tests {
 
     #[test]
     fn test_valid_rain() {
-        assert_eq!(valid_rain(22.0), true);
+        assert_eq!(valid_rain(&22.0), true);
     }
 
     #[test]
     fn test_bad_high_rain() {
-        assert_eq!(valid_rain(599.0), false);
+        assert_eq!(valid_rain(&599.0), false);
     }
 
     #[test]
     fn test_bad_low_rain() {
-        assert_eq!(valid_rain(-2.0), false);
+        assert_eq!(valid_rain(&-2.0), false);
     }
 
     #[test]
