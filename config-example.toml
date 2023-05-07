@@ -35,6 +35,8 @@ maxrain = 300.0
 # These are invalid: "/test", "test/" and "/test/".
 # The following example topics can be changed to fit your MQTT topic naming scheme.
 # Do NOT change the fields themselves.
+
+# Observations
 temp = "outside/weather/current-temp"
 tempfeels = "outside/weather/temp-feels"
 mintemp = "outside/weather/min-temp"
