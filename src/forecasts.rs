@@ -448,6 +448,13 @@ pub async fn get_forecasts() -> Result<(), Box<dyn Error>> {
         rusqttbom::send_mqtt(uvindex_topic, uvindex_str).await?;
     }
 
+    if let Some(fire_dangerr) = &response.data.o.fire_danger {
+        let mut firedanger_str = String::new();
+        firedanger_str = fire_dangerr.to_string();
+        let firedangertopic = rusqttbom::get_config().topics.firedanger;
+        rusqttbom::send_mqtt(firedangertopic, firedanger_str).await?;
+    }
+
     // 1: Next day
     if let Some(rain_chanc1) = &response.get_rain_chance1() {
         if rusqttbom::valid_rain(rain_chanc1) {
@@ -534,6 +541,13 @@ pub async fn get_forecasts() -> Result<(), Box<dyn Error>> {
         uvindex_str1 = uvindex1.to_string();
         let uvindex_topic1 = rusqttbom::get_config().topics.uvindex1;
         rusqttbom::send_mqtt(uvindex_topic1, uvindex_str1).await?;
+    }
+
+    if let Some(firedangerr1) = response.data.o1.fire_danger {
+        let mut firedanger_str1 = String::new();
+        firedanger_str1 = firedangerr1.to_string();
+        let firedanger_topic1 = rusqttbom::get_config().topics.firedanger1;
+        rusqttbom::send_mqtt(firedanger_topic1, firedanger_str1).await;
     }
 
     Ok(())
