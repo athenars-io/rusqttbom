@@ -6,7 +6,9 @@ The main idea with this program is to collect the BOM weather data via the API, 
 
 The BOM weather data API is used in [this BOM weather site](https://weather.bom.gov.au/). Go to this website then enter your suburb / location in the search bar then click on the correct result. Take a note of the seven digit *geohash* in the URL in the address bar of your browser. This will be used to get data for your location and you need to add this to your `config.toml` file.
 
-Weather data that is published by RusQTTbom via MQTT consists of the following values, by the MQTT topics:
+This program is very stable and works well as is. I've personnaly been using this for many months and have never had one issue with it. The only issues come from the missing entries from the API itself. Sometimes, some values are simply not published from the source. Regardless, RusQTTbom will collect and validate whatever data has been publised, and the data as MQTT messages. So while there may not be much maintainance, this does not mean it this project is not maintained. It just works. Other features will come in due course.
+
+Weather data *observations* are published by RusQTTbom via MQTT and consist of the following values, by the MQTT topics:
 
 - outside/weather/current-temp
 - outside/weather/temp-feels
@@ -18,6 +20,36 @@ Weather data that is published by RusQTTbom via MQTT consists of the following v
 - outside/weather/wind-dir
 - outside/weather/gusts-kms
 - outside/weather/max-gust
+
+Weather data *forecasts* for the current day and the next day are also published by RusQTTbom via MQTT and consists of the following values, by MQTT topics:
+
+Same day
+- outside/forecast-0/rain-chance
+- outside/forecast-0/rain-min
+- outside/forecast-0/rain-max
+- outside/forecast-0/temp-min
+- outside/forecast-0/temp-max
+- outside/forecast-0/sunrise
+- outside/forecast-0/sunset
+- outside/forecast-0/extended
+- outside/forecast-0/short 
+- outside/forecast-0/uv-category
+- outside/forecast-0/uv-index
+- outside/forecast-0/firedanger
+
+Next day
+- outside/forecast-1/rain-chance
+- outside/forecast-1/rain-min
+- outside/forecast-1/rain-max
+- outside/forecast-1/temp-min
+- outside/forecast-1/temp-max
+- outside/forecast-1/sunrise
+- outside/forecast-1/sunset
+- outside/forecast-1/extended
+- outside/forecast-1/short 
+- outside/forecast-1/uv-category
+- outside/forecast-1/uv-index
+- outside/forecast-1/firedanger
 
 All of the above MQTT topic names are user configurable (via the `config.toml` file). Other user configuration options consist of the following:
 
@@ -33,7 +65,6 @@ All of the above MQTT topic names are user configurable (via the `config.toml` f
 - Maximum valid humidity
 - Minimum valid rainfall
 - Maximum valid rainfall
-
 
 The data validation settings are to catch erroneous entries such as -99 or 999 and the like. RusQTTbom publishes the weather data asyncronously, which is totally unnecessary but it does. The RusQTTbom MQTT client name is 'rusqttbom'
 
