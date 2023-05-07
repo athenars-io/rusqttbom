@@ -74,6 +74,7 @@ pub struct Topics {
     pub uvcat1: String,
     pub uvindex1: String,
     pub firedanger1: String,
+    pub title: String,
 }
 
 // This function generates the User config path using var("HOME")
