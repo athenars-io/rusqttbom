@@ -17,11 +17,11 @@ struct Meta {
 struct Days {
     o: Today,
     o1: First,
-    o2: Second,
-    o3: Third,
-    o4: Fourth,
-    o5: Fifth,
-    o6: Sixth,
+    // o2: Second,
+    // o3: Third,
+    // o4: Fourth,
+    // o5: Fifth,
+    // o6: Sixth,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -98,190 +98,190 @@ struct Astronomical1 {
     sunset_time: Option<String>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-struct Second {
-    rain: Option<Rain2>,
-    uv: Uv2,
-    astronomical: Astronomical2,
-    temp_max: Option<f32>,
-    temp_min: Option<f32>,
-    extended_text: Option<String>,
-    short_text: Option<String>,
-    surf_danger: Option<String>,
-    fire_danger: Option<String>,
-}
+// #[derive(Serialize, Deserialize, Debug)]
+// struct Second {
+//     rain: Option<Rain2>,
+//     uv: Uv2,
+//     astronomical: Astronomical2,
+//     temp_max: Option<f32>,
+//     temp_min: Option<f32>,
+//     extended_text: Option<String>,
+//     short_text: Option<String>,
+//     surf_danger: Option<String>,
+//     fire_danger: Option<String>,
+// }
 
-#[derive(Serialize, Deserialize, Debug, Copy, Clone)]
-struct Rain2 {
-    chance: Option<f32>,
-    amount: Option<Amount>,
-}
+// #[derive(Serialize, Deserialize, Debug, Copy, Clone)]
+// struct Rain2 {
+//     chance: Option<f32>,
+//     amount: Option<Amount>,
+// }
 
-#[derive(Serialize, Deserialize, Debug, Copy, Clone)]
-struct Amount2 {
-    min: Option<f32>,
-    max: Option<f32>,
-}
+// #[derive(Serialize, Deserialize, Debug, Copy, Clone)]
+// struct Amount2 {
+//     min: Option<f32>,
+//     max: Option<f32>,
+// }
 
-#[derive(Serialize, Deserialize, Debug)]
-struct Uv2 {
-    category: Option<String>,
-    max_index: Option<f32>,
-}
+// #[derive(Serialize, Deserialize, Debug)]
+// struct Uv2 {
+//     category: Option<String>,
+//     max_index: Option<f32>,
+// }
 
-#[derive(Serialize, Deserialize, Debug)]
-struct Astronomical2 {
-    sunrise_time: Option<String>,
-    sunset_time: Option<String>,
-}
+// #[derive(Serialize, Deserialize, Debug)]
+// struct Astronomical2 {
+//     sunrise_time: Option<String>,
+//     sunset_time: Option<String>,
+// }
 
-#[derive(Serialize, Deserialize, Debug)]
-struct Third {
-    rain: Option<Rain3>,
-    uv: Uv3,
-    astronomical: Astronomical3,
-    temp_max: Option<f32>,
-    temp_min: Option<f32>,
-    extended_text: Option<String>,
-    short_text: Option<String>,
-    surf_danger: Option<String>,
-    fire_danger: Option<String>,
-}
+// #[derive(Serialize, Deserialize, Debug)]
+// struct Third {
+//     rain: Option<Rain3>,
+//     uv: Uv3,
+//     astronomical: Astronomical3,
+//     temp_max: Option<f32>,
+//     temp_min: Option<f32>,
+//     extended_text: Option<String>,
+//     short_text: Option<String>,
+//     surf_danger: Option<String>,
+//     fire_danger: Option<String>,
+// }
 
-#[derive(Serialize, Deserialize, Debug, Copy, Clone)]
-struct Rain3 {
-    chance: Option<f32>,
-    amount: Option<Amount>,
-}
+// #[derive(Serialize, Deserialize, Debug, Copy, Clone)]
+// struct Rain3 {
+//     chance: Option<f32>,
+//     amount: Option<Amount>,
+// }
 
-#[derive(Serialize, Deserialize, Debug, Copy, Clone)]
-struct Amount3 {
-    min: Option<f32>,
-    max: Option<f32>,
-}
+// #[derive(Serialize, Deserialize, Debug, Copy, Clone)]
+// struct Amount3 {
+//     min: Option<f32>,
+//     max: Option<f32>,
+// }
 
-#[derive(Serialize, Deserialize, Debug)]
-struct Uv3 {
-    category: Option<String>,
-    max_index: Option<f32>,
-}
+// #[derive(Serialize, Deserialize, Debug)]
+// struct Uv3 {
+//     category: Option<String>,
+//     max_index: Option<f32>,
+// }
 
-#[derive(Serialize, Deserialize, Debug)]
-struct Astronomical3 {
-    sunrise_time: Option<String>,
-    sunset_time: Option<String>,
-}
+// #[derive(Serialize, Deserialize, Debug)]
+// struct Astronomical3 {
+//     sunrise_time: Option<String>,
+//     sunset_time: Option<String>,
+// }
 
-#[derive(Serialize, Deserialize, Debug)]
-struct Fourth {
-    rain: Option<Rain4>,
-    uv: Uv4,
-    astronomical: Astronomical4,
-    temp_max: Option<f32>,
-    temp_min: Option<f32>,
-    extended_text: Option<String>,
-    short_text: Option<String>,
-    surf_danger: Option<String>,
-    fire_danger: Option<String>,
-}
+// #[derive(Serialize, Deserialize, Debug)]
+// struct Fourth {
+//     rain: Option<Rain4>,
+//     uv: Uv4,
+//     astronomical: Astronomical4,
+//     temp_max: Option<f32>,
+//     temp_min: Option<f32>,
+//     extended_text: Option<String>,
+//     short_text: Option<String>,
+//     surf_danger: Option<String>,
+//     fire_danger: Option<String>,
+// }
 
-#[derive(Serialize, Deserialize, Debug, Copy, Clone)]
-struct Rain4 {
-    chance: Option<f32>,
-    amount: Option<Amount>,
-}
+// #[derive(Serialize, Deserialize, Debug, Copy, Clone)]
+// struct Rain4 {
+//     chance: Option<f32>,
+//     amount: Option<Amount>,
+// }
 
-#[derive(Serialize, Deserialize, Debug, Copy, Clone)]
-struct Amount4 {
-    min: Option<f32>,
-    max: Option<f32>,
-}
+// #[derive(Serialize, Deserialize, Debug, Copy, Clone)]
+// struct Amount4 {
+//     min: Option<f32>,
+//     max: Option<f32>,
+// }
 
-#[derive(Serialize, Deserialize, Debug)]
-struct Uv4 {
-    category: Option<String>,
-    max_index: Option<f32>,
-}
+// #[derive(Serialize, Deserialize, Debug)]
+// struct Uv4 {
+//     category: Option<String>,
+//     max_index: Option<f32>,
+// }
 
-#[derive(Serialize, Deserialize, Debug)]
-struct Astronomical4 {
-    sunrise_time: Option<String>,
-    sunset_time: Option<String>,
-}
+// #[derive(Serialize, Deserialize, Debug)]
+// struct Astronomical4 {
+//     sunrise_time: Option<String>,
+//     sunset_time: Option<String>,
+// }
 
-#[derive(Serialize, Deserialize, Debug)]
-struct Fifth {
-    rain: Option<Rain5>,
-    uv: Uv5,
-    astronomical: Astronomical5,
-    temp_max: Option<f32>,
-    temp_min: Option<f32>,
-    extended_text: Option<String>,
-    short_text: Option<String>,
-    surf_danger: Option<String>,
-    fire_danger: Option<String>,
-}
+// #[derive(Serialize, Deserialize, Debug)]
+// struct Fifth {
+//     rain: Option<Rain5>,
+//     uv: Uv5,
+//     astronomical: Astronomical5,
+//     temp_max: Option<f32>,
+//     temp_min: Option<f32>,
+//     extended_text: Option<String>,
+//     short_text: Option<String>,
+//     surf_danger: Option<String>,
+//     fire_danger: Option<String>,
+// }
 
-#[derive(Serialize, Deserialize, Debug, Copy, Clone)]
-struct Rain5 {
-    chance: Option<f32>,
-    amount: Option<Amount>,
-}
+// #[derive(Serialize, Deserialize, Debug, Copy, Clone)]
+// struct Rain5 {
+//     chance: Option<f32>,
+//     amount: Option<Amount>,
+// }
 
-#[derive(Serialize, Deserialize, Debug, Copy, Clone)]
-struct Amount5 {
-    min: Option<f32>,
-    max: Option<f32>,
-}
+// #[derive(Serialize, Deserialize, Debug, Copy, Clone)]
+// struct Amount5 {
+//     min: Option<f32>,
+//     max: Option<f32>,
+// }
 
-#[derive(Serialize, Deserialize, Debug)]
-struct Uv5 {
-    category: Option<String>,
-    max_index: Option<f32>,
-}
+// #[derive(Serialize, Deserialize, Debug)]
+// struct Uv5 {
+//     category: Option<String>,
+//     max_index: Option<f32>,
+// }
 
-#[derive(Serialize, Deserialize, Debug)]
-struct Astronomical5 {
-    sunrise_time: Option<String>,
-    sunset_time: Option<String>,
-}
+// #[derive(Serialize, Deserialize, Debug)]
+// struct Astronomical5 {
+//     sunrise_time: Option<String>,
+//     sunset_time: Option<String>,
+// }
 
-#[derive(Serialize, Deserialize, Debug)]
-struct Sixth {
-    rain: Option<Rain6>,
-    uv: Uv6,
-    astronomical: Astronomical6,
-    temp_max: Option<f32>,
-    temp_min: Option<f32>,
-    extended_text: Option<String>,
-    short_text: Option<String>,
-    surf_danger: Option<String>,
-    fire_danger: Option<String>,
-}
+// #[derive(Serialize, Deserialize, Debug)]
+// struct Sixth {
+//     rain: Option<Rain6>,
+//     uv: Uv6,
+//     astronomical: Astronomical6,
+//     temp_max: Option<f32>,
+//     temp_min: Option<f32>,
+//     extended_text: Option<String>,
+//     short_text: Option<String>,
+//     surf_danger: Option<String>,
+//     fire_danger: Option<String>,
+// }
 
-#[derive(Serialize, Deserialize, Debug, Copy, Clone)]
-struct Rain6 {
-    chance: Option<f32>,
-    amount: Option<Amount>,
-}
+// #[derive(Serialize, Deserialize, Debug, Copy, Clone)]
+// struct Rain6 {
+//     chance: Option<f32>,
+//     amount: Option<Amount>,
+// }
 
-#[derive(Serialize, Deserialize, Debug, Copy, Clone)]
-struct Amount6 {
-    min: Option<f32>,
-    max: Option<f32>,
-}
+// #[derive(Serialize, Deserialize, Debug, Copy, Clone)]
+// struct Amount6 {
+//     min: Option<f32>,
+//     max: Option<f32>,
+// }
 
-#[derive(Serialize, Deserialize, Debug)]
-struct Uv6 {
-    category: Option<String>,
-    max_index: Option<f32>,
-}
+// #[derive(Serialize, Deserialize, Debug)]
+// struct Uv6 {
+//     category: Option<String>,
+//     max_index: Option<f32>,
+// }
 
-#[derive(Serialize, Deserialize, Debug)]
-struct Astronomical6 {
-    sunrise_time: Option<String>,
-    sunset_time: Option<String>,
-}
+// #[derive(Serialize, Deserialize, Debug)]
+// struct Astronomical6 {
+//     sunrise_time: Option<String>,
+//     sunset_time: Option<String>,
+// }
 
 impl Forecasts {
     // Methods for returning forecast data, if it exists. Returns Some or None.
@@ -524,7 +524,7 @@ pub async fn get_forecasts() -> Result<(), Box<dyn Error>> {
         rusqttbom::send_mqtt(uvindex_topic1, uvindex_str1).await?;
     }
 
-    if let Some(firedangerr1) = response.data.o1.fire_danger {
+    if let Some(firedangerr1) = &response.data.o1.fire_danger {
         let firedanger_str1 = firedangerr1.to_string();
         let firedanger_topic1 = rusqttbom::get_config().topics.firedanger1;
         rusqttbom::send_mqtt(firedanger_topic1, firedanger_str1).await?;
