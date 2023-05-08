@@ -229,17 +229,17 @@ mod tests {
 
     #[test]
     fn test_valid_rain() {
-        assert_eq!(valid_rain(&22.0), true);
+        assert_eq!(valid_rain(22.0), true);
     }
 
     #[test]
     fn test_bad_high_rain() {
-        assert_eq!(valid_rain(&599.0), false);
+        assert_eq!(valid_rain(599.0), false);
     }
 
     #[test]
     fn test_bad_low_rain() {
-        assert_eq!(valid_rain(&-2.0), false);
+        assert_eq!(valid_rain(-2.0), false);
     }
 
     #[test]

@@ -97,8 +97,7 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
     // Publish the data as MQTT messages
     if let Some(temppp) = response.get_temp() {
         if rusqttbom::valid_temp(temppp) {
-            let mut temp_string = String::new();
-            temp_string = temppp.to_string();
+            let temp_string = temppp.to_string();
             let temp_c_topic = rusqttbom::get_config().topics.temp;
             rusqttbom::send_mqtt(temp_c_topic, temp_string).await?;
         }
@@ -106,8 +105,7 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
 
     if let Some(temp_feels) = response.get_temp_feels() {
         if rusqttbom::valid_temp(temp_feels) {
-            let mut temp_feels_string = String::new();
-            temp_feels_string = temp_feels.to_string();
+            let temp_feels_string = temp_feels.to_string();
             let temp_feels_topic = rusqttbom::get_config().topics.tempfeels;
             rusqttbom::send_mqtt(temp_feels_topic, temp_feels_string).await?;
         }
@@ -115,8 +113,7 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
 
     if let Some(min_temppp) = response.get_min_temp() {
         if rusqttbom::valid_temp(min_temppp) {
-            let mut min_temp_string = String::new();
-            min_temp_string = min_temppp.to_string();
+            let min_temp_string = min_temppp.to_string();
             let min_temp_topic = rusqttbom::get_config().topics.mintemp;
             rusqttbom::send_mqtt(min_temp_topic, min_temp_string).await?;
         }
@@ -124,8 +121,7 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
 
     if let Some(max_temppp) = response.get_max_temp() {
         if rusqttbom::valid_temp(max_temppp) {
-            let mut max_temp_string = String::new();
-            max_temp_string = max_temppp.to_string();
+            let max_temp_string = max_temppp.to_string();
             let max_temp_topic = rusqttbom::get_config().topics.maxtemp;
             rusqttbom::send_mqtt(max_temp_topic, max_temp_string).await?;
         }
@@ -133,8 +129,7 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
 
     if let Some(humidityyy) = response.get_humidity() {
         if rusqttbom::valid_humidity(humidityyy) {
-            let mut humidity_string = String::new();
-            humidity_string = humidityyy.to_string();
+            let humidity_string = humidityyy.to_string();
             let humidity_topic = rusqttbom::get_config().topics.humidity;
             rusqttbom::send_mqtt(humidity_topic, humidity_string).await?;
         }
@@ -142,8 +137,7 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
 
     if let Some(rainnn) = response.get_rain() {
         if rusqttbom::valid_rain(rainnn) {
-            let mut rain_string = String::new();
-            rain_string = rainnn.to_string();
+            let rain_string = rainnn.to_string();
             let rain_today_topic = rusqttbom::get_config().topics.rain;
             rusqttbom::send_mqtt(rain_today_topic, rain_string).await?;
         }
@@ -151,24 +145,21 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
 
     if let Some(windkm) = response.data.wind.speed_kilometre {
         if rusqttbom::valid_wind(windkm) {
-            let mut windstring = String::new();
-            windstring = windkm.to_string();
+            let windstring = windkm.to_string();
             let wind_km_topic = rusqttbom::get_config().topics.windkms;
             rusqttbom::send_mqtt(wind_km_topic, windstring).await?;
         }
     }
 
     if let Some(winddir) = &response.data.wind.direction {
-        let mut wind_dir_string = String::new();
-        wind_dir_string = winddir.to_string();
+        let wind_dir_string = winddir.to_string();
         let wind_dir_topic = rusqttbom::get_config().topics.winddir;
         rusqttbom::send_mqtt(wind_dir_topic, wind_dir_string).await?;
     }
 
     if let Some(guggg) = response.get_gusts() {
         if rusqttbom::valid_wind(guggg) {
-            let mut gust_string = String::new();
-            gust_string = guggg.to_string();
+            let gust_string = guggg.to_string();
             let gusts_topic = rusqttbom::get_config().topics.gusts;
             rusqttbom::send_mqtt(gusts_topic, gust_string).await?;
         }
@@ -176,8 +167,7 @@ pub async fn get_observations() -> Result<(), Box<dyn Error>> {
 
     if let Some(maxw) = response.get_gusts_max() {
         if rusqttbom::valid_wind(maxw) {
-            let mut max_wind_string = String::new();
-            max_wind_string = maxw.to_string();
+            let max_wind_string = maxw.to_string();
             let max_gust_topic = rusqttbom::get_config().topics.maxgust;
             rusqttbom::send_mqtt(max_gust_topic, max_wind_string).await?;
         }

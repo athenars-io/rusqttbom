@@ -366,8 +366,7 @@ pub async fn get_forecasts() -> Result<(), Box<dyn Error>> {
     if let Some(rain_chanc) = response.get_rain_chance() {
         // the next line calls function checking validity of retrieved data
         if rusqttbom::valid_rain(rain_chanc) {
-            let mut rain_c_string = String::new();
-            rain_c_string = rain_chanc.to_string();
+            let rain_c_string = rain_chanc.to_string();
             let rain_c_topic = rusqttbom::get_config().topics.rainchance;
             // The next line calls function that actually sends the MQTT messages
             rusqttbom::send_mqtt(rain_c_topic, rain_c_string).await?;
@@ -376,8 +375,7 @@ pub async fn get_forecasts() -> Result<(), Box<dyn Error>> {
 
     if let Some(rain_minn) = response.get_f_rain_min() {
         if rusqttbom::valid_rain(rain_minn) {
-            let mut rain_min_string = String::new();
-            rain_min_string = rain_minn.to_string();
+            let rain_min_string = rain_minn.to_string();
             let rain_min_topic = rusqttbom::get_config().topics.rainmin;
             rusqttbom::send_mqtt(rain_min_topic, rain_min_string).await?;
         }
@@ -385,8 +383,7 @@ pub async fn get_forecasts() -> Result<(), Box<dyn Error>> {
 
     if let Some(rain_maxx) = response.get_f_rain_max() {
         if rusqttbom::valid_rain(rain_maxx) {
-            let mut rain_max_string = String::new();
-            rain_max_string = rain_maxx.to_string();
+            let rain_max_string = rain_maxx.to_string();
             let rain_max_topic = rusqttbom::get_config().topics.rainmax;
             rusqttbom::send_mqtt(rain_max_topic, rain_max_string).await?;
         }
@@ -394,8 +391,7 @@ pub async fn get_forecasts() -> Result<(), Box<dyn Error>> {
 
     if let Some(f_temp_min) = response.get_f_temp_min() {
         if rusqttbom::valid_temp(f_temp_min) {
-            let mut ftemp_min_string = String::new();
-            ftemp_min_string = f_temp_min.to_string();
+            let ftemp_min_string = f_temp_min.to_string();
             let ftemp_min_topic = rusqttbom::get_config().topics.tempmin;
             rusqttbom::send_mqtt(ftemp_min_topic, ftemp_min_string).await?;
         }
@@ -403,58 +399,50 @@ pub async fn get_forecasts() -> Result<(), Box<dyn Error>> {
 
     if let Some(f_temp_max) = response.get_f_temp_max() {
         if rusqttbom::valid_temp(f_temp_max) {
-            let mut ftemp_max_string = String::new();
-            ftemp_max_string = f_temp_max.to_string();
+            let ftemp_max_string = f_temp_max.to_string();
             let ftemp_max_topic = rusqttbom::get_config().topics.tempmax;
             rusqttbom::send_mqtt(ftemp_max_topic, ftemp_max_string).await?;
         }
     }
 
     if let Some(sunrise) = &response.data.o.astronomical.sunrise_time {
-        let mut sunrise_str = String::new();
-        sunrise_str = sunrise.to_string();
+        let sunrise_str = sunrise.to_string();
         let sunrise_topic = rusqttbom::get_config().topics.sunrise;
         rusqttbom::send_mqtt(sunrise_topic, sunrise_str).await?;
     }
 
     if let Some(sunset) = &response.data.o.astronomical.sunset_time {
-        let mut sunset_str = String::new();
-        sunset_str = sunset.to_string();
+        let sunset_str = sunset.to_string();
         let sunset_topic = rusqttbom::get_config().topics.sunset;
         rusqttbom::send_mqtt(sunset_topic, sunset_str).await?;
     }
 
     if let Some(ext) = &response.data.o.extended_text {
-        let mut ext_str = String::new();
-        ext_str = ext.to_string();
+        let ext_str = ext.to_string();
         let ext_topic = rusqttbom::get_config().topics.extended;
         rusqttbom::send_mqtt(ext_topic, ext_str).await?;
     }
 
     if let Some(short) = &response.data.o.short_text {
-        let mut short_str = String::new();
-        short_str = short.to_string();
+        let short_str = short.to_string();
         let short_topic = rusqttbom::get_config().topics.short;
         rusqttbom::send_mqtt(short_topic, short_str).await?;
     }
 
     if let Some(uvcat) = &response.data.o.uv.category {
-        let mut uvcat_str = String::new();
-        uvcat_str = uvcat.to_string();
+        let uvcat_str = uvcat.to_string();
         let uvcat_topic = rusqttbom::get_config().topics.uvcat;
         rusqttbom::send_mqtt(uvcat_topic, uvcat_str).await?;
     }
 
     if let Some(uvindex) = response.data.o.uv.max_index {
-        let mut uvindex_str = String::new();
-        uvindex_str = uvindex.to_string();
+        let uvindex_str = uvindex.to_string();
         let uvindex_topic = rusqttbom::get_config().topics.uvindex;
         rusqttbom::send_mqtt(uvindex_topic, uvindex_str).await?;
     }
 
     if let Some(fire_dangerr) = &response.data.o.fire_danger {
-        let mut firedanger_str = String::new();
-        firedanger_str = fire_dangerr.to_string();
+        let firedanger_str = fire_dangerr.to_string();
         let firedangertopic = rusqttbom::get_config().topics.firedanger;
         rusqttbom::send_mqtt(firedangertopic, firedanger_str).await?;
     }
@@ -462,8 +450,7 @@ pub async fn get_forecasts() -> Result<(), Box<dyn Error>> {
     // 1: Next day
     if let Some(rain_chanc1) = response.get_rain_chance1() {
         if rusqttbom::valid_rain(rain_chanc1) {
-            let mut rain_c_string1 = String::new();
-            rain_c_string1 = rain_chanc1.to_string();
+            let rain_c_string1 = rain_chanc1.to_string();
             let rain_c_topic1 = rusqttbom::get_config().topics.rainchance1;
             rusqttbom::send_mqtt(rain_c_topic1, rain_c_string1).await?;
         }
@@ -471,8 +458,7 @@ pub async fn get_forecasts() -> Result<(), Box<dyn Error>> {
 
     if let Some(rain_minn1) = response.get_f_rain_min1() {
         if rusqttbom::valid_rain(rain_minn1) {
-            let mut rain_min_string1 = String::new();
-            rain_min_string1 = rain_minn1.to_string();
+            let rain_min_string1 = rain_minn1.to_string();
             let rain_min_topic1 = rusqttbom::get_config().topics.rainmin1;
             rusqttbom::send_mqtt(rain_min_topic1, rain_min_string1).await?;
         }
@@ -480,8 +466,7 @@ pub async fn get_forecasts() -> Result<(), Box<dyn Error>> {
 
     if let Some(rain_maxx1) = response.get_f_rain_max1() {
         if rusqttbom::valid_rain(rain_maxx1) {
-            let mut rain_max_string1 = String::new();
-            rain_max_string1 = rain_maxx1.to_string();
+            let rain_max_string1 = rain_maxx1.to_string();
             let rain_max_topic1 = rusqttbom::get_config().topics.rainmax1;
             rusqttbom::send_mqtt(rain_max_topic1, rain_max_string1).await?;
         }
@@ -489,8 +474,7 @@ pub async fn get_forecasts() -> Result<(), Box<dyn Error>> {
 
     if let Some(f_temp_min1) = response.get_f_temp_min1() {
         if rusqttbom::valid_temp(f_temp_min1) {
-            let mut ftemp_min_string1 = String::new();
-            ftemp_min_string1 = f_temp_min1.to_string();
+            let ftemp_min_string1 = f_temp_min1.to_string();
             let ftemp_min_topic1 = rusqttbom::get_config().topics.tempmin1;
             rusqttbom::send_mqtt(ftemp_min_topic1, ftemp_min_string1).await?;
         }
@@ -498,60 +482,52 @@ pub async fn get_forecasts() -> Result<(), Box<dyn Error>> {
 
     if let Some(f_temp_max1) = response.get_f_temp_max1() {
         if rusqttbom::valid_temp(f_temp_max1) {
-            let mut ftemp_max_string1 = String::new();
-            ftemp_max_string1 = f_temp_max1.to_string();
+            let ftemp_max_string1 = f_temp_max1.to_string();
             let ftemp_max_topic1 = rusqttbom::get_config().topics.tempmax1;
             rusqttbom::send_mqtt(ftemp_max_topic1, ftemp_max_string1).await?;
         }
     }
 
     if let Some(sunrise1) = response.data.o1.astronomical.sunrise_time {
-        let mut sunrise_str1 = String::new();
-        sunrise_str1 = sunrise1.to_string();
+        let sunrise_str1 = sunrise1.to_string();
         let sunrise_topic1 = rusqttbom::get_config().topics.sunrise1;
         rusqttbom::send_mqtt(sunrise_topic1, sunrise_str1).await?;
     }
 
     if let Some(sunset1) = response.data.o1.astronomical.sunset_time {
-        let mut sunset_str1 = String::new();
-        sunset_str1 = sunset1.to_string();
+        let sunset_str1 = sunset1.to_string();
         let sunset_topic1 = rusqttbom::get_config().topics.sunset1;
         rusqttbom::send_mqtt(sunset_topic1, sunset_str1).await?;
     }
 
     if let Some(ext1) = response.data.o1.extended_text {
-        let mut ext_str1 = String::new();
-        ext_str1 = ext1.to_string();
+        let ext_str1 = ext1.to_string();
         let ext_topic1 = rusqttbom::get_config().topics.extended1;
         rusqttbom::send_mqtt(ext_topic1, ext_str1).await?;
     }
 
     if let Some(short1) = response.data.o1.short_text {
-        let mut short_str1 = String::new();
-        short_str1 = short1.to_string();
+        let short_str1 = short1.to_string();
         let short_topic1 = rusqttbom::get_config().topics.short1;
         rusqttbom::send_mqtt(short_topic1, short_str1).await?;
     }
 
     if let Some(uvcat1) = response.data.o1.uv.category {
-        let mut uvcat_str1 = String::new();
-        uvcat_str1 = uvcat1.to_string();
+        let uvcat_str1 = uvcat1.to_string();
         let uvcat_topic1 = rusqttbom::get_config().topics.uvcat1;
         rusqttbom::send_mqtt(uvcat_topic1, uvcat_str1).await?;
     }
 
     if let Some(uvindex1) = response.data.o1.uv.max_index {
-        let mut uvindex_str1 = String::new();
-        uvindex_str1 = uvindex1.to_string();
+        let uvindex_str1 = uvindex1.to_string();
         let uvindex_topic1 = rusqttbom::get_config().topics.uvindex1;
         rusqttbom::send_mqtt(uvindex_topic1, uvindex_str1).await?;
     }
 
     if let Some(firedangerr1) = response.data.o1.fire_danger {
-        let mut firedanger_str1 = String::new();
-        firedanger_str1 = firedangerr1.to_string();
+        let firedanger_str1 = firedangerr1.to_string();
         let firedanger_topic1 = rusqttbom::get_config().topics.firedanger1;
-        rusqttbom::send_mqtt(firedanger_topic1, firedanger_str1).await;
+        rusqttbom::send_mqtt(firedanger_topic1, firedanger_str1).await?;
     }
 
     Ok(())
