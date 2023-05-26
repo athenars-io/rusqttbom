@@ -527,7 +527,7 @@ pub async fn get_forecasts() -> Result<(), Box<dyn Error>> {
     if let Some(firedangerr1) = response.data.o1.fire_danger {
         let firedanger_str1 = firedangerr1.to_string();
         let firedanger_topic1 = rusqttbom::get_config().topics.firedanger1;
-        rusqttbom::send_mqtt(firedanger_topic1, firedanger_str1).await?;
+        rusqttbom::send_mqtt(firedanger_topic1, firedanger_str1).await;
     }
 
     Ok(())
